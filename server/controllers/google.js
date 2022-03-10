@@ -3,6 +3,14 @@ const {v4} = require('uuid');
 const strapiUtils = require('@strapi/utils');
 const {getService} = require("@strapi/admin/server/utils");
 
+const configValidation = () => {
+  const config = strapi.config.get('plugin.strapi-plugin-sso')
+  if (config['GOOGLE_OAUTH_CLIENT_ID'] && config['GOOGLE_OAUTH_CLIENT_SECRET']) {
+    return config
+  }
+  throw new Error('GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET are required')
+}
+
 /**
  * Common constants
  */
@@ -11,6 +19,7 @@ const OAUTH_TOKEN_ENDPOINT = 'https://accounts.google.com/o/oauth2/token'
 const OAUTH_USER_INFO_ENDPOINT = 'https://www.googleapis.com/oauth2/v1/userinfo'
 const OAUTH_GRANT_TYPE = 'authorization_code'
 const OAUTH_RESPONSE_TYPE = 'code'
+const OAUTH_SCOPE = 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
 
 /**
  * Redirect to Google
@@ -18,9 +27,9 @@ const OAUTH_RESPONSE_TYPE = 'code'
  * @return {Promise<*>}
  */
 async function googleSignIn(ctx) {
-  const redirectUri = encodeURIComponent(process.env.GOOGLE_OAUTH_REDIRECT_URI)
-  const scope = encodeURIComponent(process.env.GOOGLE_OAUTH_SCOPE)
-  const url = `${OAUTH_ENDPOINT}?client_id=${process.env.GOOGLE_OAUTH_CLIENT_ID}&redirect_uri=${redirectUri}&scope=${scope}&response_type=${OAUTH_RESPONSE_TYPE}`
+  const config = configValidation() //strapi.config.get('plugin.strapi-plugin-sso')
+  const redirectUri = encodeURIComponent(config['GOOGLE_OAUTH_REDIRECT_URI'])
+  const url = `${OAUTH_ENDPOINT}?client_id=${config['GOOGLE_OAUTH_CLIENT_ID']}&redirect_uri=${redirectUri}&scope=${OAUTH_SCOPE}&response_type=${OAUTH_RESPONSE_TYPE}`
   ctx.set('Location', url)
   return ctx.send({}, 301)
 }
@@ -31,6 +40,7 @@ async function googleSignIn(ctx) {
  * @return {Promise<*>}
  */
 async function googleSignInCallback(ctx) {
+  const config = configValidation()
   const httpClient = axios.create()
   const tokenService = getService('token')
   const userService = getService('user')
@@ -43,9 +53,9 @@ async function googleSignInCallback(ctx) {
 
   const params = new URLSearchParams();
   params.append('code', ctx.query.code);
-  params.append('client_id', process.env.GOOGLE_OAUTH_CLIENT_ID);
-  params.append('client_secret', process.env.GOOGLE_OAUTH_CLIENT_SECRET);
-  params.append('redirect_uri', process.env.GOOGLE_OAUTH_REDIRECT_URI);
+  params.append('client_id', config['GOOGLE_OAUTH_CLIENT_ID']);
+  params.append('client_secret', config['GOOGLE_OAUTH_CLIENT_SECRET']);
+  params.append('redirect_uri', config['GOOGLE_OAUTH_REDIRECT_URI']);
   params.append('grant_type', OAUTH_GRANT_TYPE);
 
   try {
@@ -58,13 +68,13 @@ async function googleSignInCallback(ctx) {
     const userResponse = await httpClient.get(userInfoEndpoint)
 
     // for GSuite
-    if (process.env.GOOGLE_GSUITE_HD) {
-      if (userResponse.data.hd !== process.env.GOOGLE_GSUITE_HD) {
+    if (config['GOOGLE_GSUITE_HD']) {
+      if (userResponse.data.hd !== config['GOOGLE_GSUITE_HD']) {
         throw new Error('Unauthorized email address')
       }
     }
 
-    const email = process.env.GOOGLE_ALIAS ? oauthService.addGmailAlias(userResponse.data.email, process.env.GOOGLE_ALIAS) : userResponse.data.email
+    const email = config['GOOGLE_ALIAS'] ? oauthService.addGmailAlias(userResponse.data.email, config['GOOGLE_ALIAS']) : userResponse.data.email
     const dbUser = await userService.findOneByEmail(email)
     let activateUser;
     let jwtToken;
