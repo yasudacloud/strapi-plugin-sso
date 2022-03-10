@@ -1,0 +1,31 @@
+{
+  "info": {
+    "singularName": "roles",
+    "pluralName": "sso-roles",
+    "collectionName": "sso-roles",
+    "displayName": "sso-role",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "content-manager": {
+      "visible": false
+    },
+    "content-type-builder": {
+      "visible": false
+    }
+  },
+  "attributes": {
+    "oauth-type": {
+      "type": "string",
+      "configurable": false,
+      "required": true
+    },
+    "roles": {
+      "type": "json",
+      "configurable": false
+    }
+  }
+}
