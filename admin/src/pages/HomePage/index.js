@@ -1,6 +1,7 @@
-import React, {memo, useCallback, useEffect, useState} from 'react';
+import React, {memo, useEffect, useState} from 'react';
 import {CheckPermissions} from '@strapi/helper-plugin';
 import {useIntl} from 'react-intl';
+import { Helmet } from 'react-helmet';
 import {Box} from '@strapi/design-system/Box';
 import {BaseCheckbox} from '@strapi/design-system/BaseCheckbox'
 import {Tbody, Tr, Td, Th} from '@strapi/design-system/Table';
@@ -86,6 +87,7 @@ const HomePage = () => {
 
   return (
     <CheckPermissions permissions={[{ action: 'plugin::strapi-plugin-sso.read', subject: null }]}>
+      <Helmet title={'Single Sign On'} />
       <Box padding={10}>
         {
           showSuccess && (
