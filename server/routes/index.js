@@ -17,6 +17,22 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: '/cognito',
+    handler: 'cognito.cognitoSignIn',
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: 'GET',
+    path: '/cognito/callback',
+    handler: 'cognito.cognitoSignInCallback',
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: 'GET',
     path: '/sso-roles',
     handler: 'role.find'
   },
