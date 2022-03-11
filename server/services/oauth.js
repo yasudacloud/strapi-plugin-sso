@@ -54,11 +54,15 @@ module.exports = ({strapi}) => ({
       entry: sanitizedEntity,
     });
   },
+  // Sign In Success
   renderSignUpSuccess(jwtToken, user, nonce) {
     return `
 <!doctype html>
 <html>
 <head>
+<noscript>
+<h3>JavaScript must be enabled for authentication</h3>
+</noscript>
 <script nonce="${nonce}">
  window.addEventListener('load', function() {
    sessionStorage.setItem('jwtToken', '"${jwtToken}"');
@@ -68,17 +72,17 @@ module.exports = ({strapi}) => ({
 </script>
 </head>
 <body>
-認証完了
 </body>
 </html>`;
   },
+  // Sign In Error
   renderSignUpError(message) {
     return `
 <!doctype html>
 <html>
 <head></head>
 <body>
-<h3>認証に失敗しました</h3>
+<h3>Authentication failed</h3>
 <p>${message}</p>
 </body>
 </html>`;

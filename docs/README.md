@@ -7,7 +7,13 @@ strapi-plugin-ssoはGoogleアカウントやCognitoユーザープールのア�
 プラグインの利用にあたり幾つかの注意事項もあるので下記の資料をご一読下さい。
 
 [Googleアカウントのシングルサインオン セットアップ](ja/google/setup.md)
+
 [Googleアカウントのシングルサインオン 動作仕様](ja/google/admin.md)
+
+[Cognitoアカウントのシングルサインオン セットアップ](ja/cognito/setup.md)
+
+[Cognitoアカウントのシングルサインオン 動作仕様](ja/cognito/admin.md)
+
 
 現在はGoogleとCognitoユーザープールのみサポートしています。要望があればお気軽にご連絡下さい。
 
