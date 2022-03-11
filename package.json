@@ -7,7 +7,9 @@
     "description": "Version 4 enables single sign-on",
     "kind": "plugin"
   },
-  "dependencies": {},
+  "dependencies": {
+    "generate-password": "^1.7.0"
+  },
   "author": {
     "name": "yasudacloud"
   },
