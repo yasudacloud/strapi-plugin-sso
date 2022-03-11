@@ -10,6 +10,7 @@ You will be able to log in to the administration screen using your Google accoun
 
 Currently supports Cognito user pool and Google accounts.
 
+Please read the [documents](#user-content-documentationenglish) for some precautions.
 
 # Easy to install
 ```shell
@@ -62,15 +63,15 @@ module.exports = ({env}) => ({
 
 
 # Documentation(Japanese)
-[Description (Japanese)](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/README.md)
+[Description](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/README.md)
 
-[Google Single Sign On Setup (Japanese)](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/setup.md)
+[Google Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/setup.md)
 
-[Google Single Sign-On Specifications (Japanese)](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/admin.md)
+[Google Single Sign-On Specifications](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/admin.md)
 
-[Cognito Single Sign On Setup (Japanese)](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/cognito/setup.md)
+[Cognito Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/cognito/setup.md)
 
-[Cognito Single Sign-On Specifications (Japanese)](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/cognito/admin.md)
+[Cognito Single Sign-On Specifications](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/cognito/admin.md)
 
 # Demo
-![Cognitoログインデモ](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/demo.gif?raw=true "デモ動画")
+![CognitoDemo](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/demo.gif?raw=true "DemoMovie")
