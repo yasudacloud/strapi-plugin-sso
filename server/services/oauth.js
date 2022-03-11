@@ -1,10 +1,11 @@
 const {getService} = require("@strapi/admin/server/utils");
+const strapiUtils = require('@strapi/utils');
 
 module.exports = ({strapi}) => ({
   async createUser(email, lastname, firstname, locale, roles = []) {
     const createdUser = await getService('user').create({
       firstname: firstname ? firstname : 'unset',
-      lastname: lastname ? lastname : 'user',
+      lastname: lastname ? lastname : '',
       email,
       roles,
       preferedLanguage: locale,
@@ -31,6 +32,18 @@ module.exports = ({strapi}) => ({
     } else {
       return 'en'
     }
+  },
+  async triggerWebHook(user) {
+    const {ENTRY_CREATE} = strapiUtils.webhook.webhookEvents;
+    const modelDef = strapi.getModel('admin::user');
+    const sanitizedEntity = await strapiUtils.sanitize.sanitizers.defaultSanitizeOutput(
+      modelDef,
+      user
+    );
+    strapi.eventHub.emit(ENTRY_CREATE, {
+      model: modelDef.modelName,
+      entry: sanitizedEntity,
+    });
   },
   renderSignUpSuccess(jwtToken, user, nonce) {
     return `
