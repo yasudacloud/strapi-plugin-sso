@@ -18,4 +18,4 @@ Currently supports Cognito user pool and Google accounts.
 
 [Google Single Sign-On Specifications (Japanese)](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/admin.md)
 
-![Cognitoログインデモ](https://github.com/yasudacloud/strapi-plugin-sso/tree/main/docs/demo.gif "デモ動画")
+![Cognitoログインデモ](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/demo.gif?raw=true "デモ動画")
