@@ -1,6 +1,5 @@
 const axios = require("axios");
 const {v4} = require('uuid');
-const strapiUtils = require('@strapi/utils');
 const {getService} = require("@strapi/admin/server/utils");
 
 const configValidation = () => {
@@ -100,18 +99,8 @@ async function googleSignInCallback(ctx) {
       )
       jwtToken = await tokenService.createJwtToken(activateUser)
 
-
       // Trigger webhook
-      const {ENTRY_CREATE} = strapiUtils.webhook.webhookEvents;
-      const modelDef = strapi.getModel('admin::user');
-      const sanitizedEntity = await strapiUtils.sanitize.sanitizers.defaultSanitizeOutput(
-        modelDef,
-        activateUser
-      );
-      strapi.eventHub.emit(ENTRY_CREATE, {
-        model: modelDef.modelName,
-        entry: sanitizedEntity,
-      });
+      await oauthService.triggerWebHook(activateUser)
     }
 
     // Client-side authentication persistence and redirection

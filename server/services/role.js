@@ -18,12 +18,13 @@ module.exports = ({strapi}) => ({
       .findOne({
         'oauth-type': this.SSO_TYPE_GOOGLE
       })
-
-    // const roles = this.ssoRoles()
-    // return roles.find(role => role['oauth-type'] === oauthType)
   },
-  cognitoRoles() {
-
+  async cognitoRoles() {
+    return await strapi
+      .query('plugin::strapi-plugin-sso.roles')
+      .findOne({
+        'oauth-type': this.SSO_TYPE_COGNITO
+      })
   },
   async find() {
     return await strapi
