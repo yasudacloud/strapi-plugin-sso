@@ -26,6 +26,10 @@
     "name": "yasudacloud",
     "url": "https://github.com/yasudacloud/strapi-plugin-sso"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yasudacloud/strapi-plugin-sso"
+  },
   "bugs": {
     "url": "https://github.com/yasudacloud/strapi-plugin-sso/issues"
   },
@@ -35,8 +39,8 @@
     }
   ],
   "engines": {
-    "node": ">=12.x.x <=16.x.x",
-    "npm": ">=6.0.0"
+    "node": ">=14.x.x <=17.x.x",
+    "npm": ">=7.0.0"
   },
   "license": "MIT"
 }
