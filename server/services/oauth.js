@@ -1,5 +1,6 @@
 const {getService} = require("@strapi/admin/server/utils");
 const strapiUtils = require('@strapi/utils');
+const generator = require('generate-password');
 
 module.exports = ({strapi}) => ({
   async createUser(email, lastname, firstname, locale, roles = []) {
@@ -10,12 +11,20 @@ module.exports = ({strapi}) => ({
       roles,
       preferedLanguage: locale,
     });
+
     return await getService('user').register({
       registrationToken: createdUser.registrationToken,
       userInfo: {
         firstname: firstname ? firstname : 'unset',
         lastname: lastname ? lastname : 'user',
-        password: 'P@ssw0rd', // TODO 複雑なものにする
+        password: generator.generate({
+          length: 12,
+          numbers: true,
+          lowercase: true,
+          uppercase: true,
+          exclude: '()+_-=}{[]|:;"/?.><,`~',
+          strict: true
+        }),
       }
     });
   },
