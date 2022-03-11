@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "Plug-in for single sign-on with Strapi!",
   "strapi": {
+   "displayName": "Single Sign On",
     "name": "strapi-plugin-sso",
     "description": "Version 4 enables single sign-on",
     "kind": "plugin"
@@ -15,11 +16,18 @@
     "Google",
     "Cognito"
   ],
+  "peerDependencies": {
+    "@strapi/strapi": "^4.0.0"
+  },
   "dependencies": {
     "generate-password": "^1.7.0"
   },
   "author": {
-    "name": "yasudacloud"
+    "name": "yasudacloud",
+    "url": "https://github.com/yasudacloud/strapi-plugin-sso"
+  },
+  "bugs": {
+    "url": "https://github.com/yasudacloud/strapi-plugin-sso/issues"
   },
   "maintainers": [
     {
