@@ -40,7 +40,6 @@ module.exports = ({strapi}) => ({
             query.update({
               where: {'oauth-type': role['oauth-type']},
               data: {roles: role.role},
-              populate: ['roles'],
             });
           } else {
             query.create({
