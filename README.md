@@ -1,9 +1,18 @@
+<div align="center">
+ <img src="https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/strapi-plugin-sso.png?raw=true" width="180"/>
+</div>
+
 ## Strapi plugin strapi-plugin-sso
 
 This plugin can provide single sign-on.
 
 Currently supports Cognito user pool and Google accounts.
 
+
+### Easy to install
+```shell
+yarn add strapi-plugin-sso
+```
 
 ### Please prepare the following
 - Strapi Version4
