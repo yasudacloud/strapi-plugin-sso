@@ -2,5 +2,6 @@
   "page.title": "初回ログイン時のデフォルトロール設定",
   "page.notes": "既に登録済みのユーザーには反映されません",
   "page.save": "保存",
-  "page.save.success": "設定を更新しました"
+  "page.save.success": "設定を更新しました",
+  "page.save.error": "設定の更新に失敗しました"
 }

@@ -1,8 +1,8 @@
 import React, {memo, useEffect, useState} from 'react';
-import { HeaderLayout } from '@strapi/design-system/Layout';
+import {HeaderLayout} from '@strapi/design-system/Layout';
 import {CheckPermissions} from '@strapi/helper-plugin';
 import {useIntl} from 'react-intl';
-import { Helmet } from 'react-helmet';
+import {Helmet} from 'react-helmet';
 import {Box} from '@strapi/design-system/Box';
 import {BaseCheckbox} from '@strapi/design-system/BaseCheckbox'
 import {Tbody, Tr, Td, Th} from '@strapi/design-system/Table';
@@ -21,12 +21,6 @@ const ButtonWrapper = styled.div`
     margin: 0 0 0 auto;
   }
 `
-
-const Title = styled.p`
-  font-size: 20px;
-  margin: 20px 0;
-`
-
 const Description = styled.p`
   font-size: 16px;
   margin: 20px 0;
@@ -46,6 +40,8 @@ const HomePage = () => {
   const [ssoRoles, setSSORoles] = useState([])
   const [roles, setRoles] = useState([])
   const [showSuccess, setSuccess] = useState(false)
+  const [showError, setError] = useState(false)
+
   useEffect(async () => {
     const ssoRoleResponse = await axios.get(`/strapi-plugin-sso/sso-roles`)
     setSSORoles(ssoRoleResponse.data)
@@ -71,24 +67,28 @@ const HomePage = () => {
     setSSORoles(ssoRoles.slice())
   }
   const onClickSave = async () => {
-    const response = await axios.put('/strapi-plugin-sso/sso-roles', {
-      roles: ssoRoles.map(role => ({
-        'oauth-type': role['oauth-type'], role: role['role']
-      }))
-    })
-    if (response.status === 204) {
+    try {
+      await axios.put('/strapi-plugin-sso/sso-roles', {
+        roles: ssoRoles.map(role => ({
+          'oauth-type': role['oauth-type'], role: role['role']
+        }))
+      })
       setSuccess(true)
       setTimeout(() => {
         setSuccess(false)
       }, 3000)
-    } else {
-
+    } catch (e) {
+      console.error(e)
+      setError(true)
+      setTimeout(() => {
+        setError(false)
+      }, 3000)
     }
   }
 
   return (
-    <CheckPermissions permissions={[{ action: 'plugin::strapi-plugin-sso.read', subject: null }]}>
-      <Helmet title={'Single Sign On'} />
+    <CheckPermissions permissions={[{action: 'plugin::strapi-plugin-sso.read', subject: null}]}>
+      <Helmet title={'Single Sign On'}/>
       <HeaderLayout
         title={'Single Sign On'}
         subtitle={formatMessage({
@@ -109,6 +109,23 @@ const HomePage = () => {
                 {formatMessage({
                   id: getTrad('page.save.success'),
                   defaultMessage: 'Updated settings'
+                })}
+              </Alert>
+            </AlertMessage>
+          )
+        }
+        {
+          showError && (
+            <AlertMessage>
+              <Alert
+                title="Error"
+                variant={'danger'}
+                closeLabel={''}
+                onClose={() => setError(false)}
+              >
+                {formatMessage({
+                  id: getTrad('page.save.error'),
+                  defaultMessage: 'Update failed.'
                 })}
               </Alert>
             </AlertMessage>
