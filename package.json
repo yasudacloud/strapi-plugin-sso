@@ -4,7 +4,7 @@
   "description": "Plug-in for single sign-on with Strapi!",
   "strapi": {
    "displayName": "Single Sign On",
-    "name": "strapi-plugin-sso",
+    "name": "Single Sign On",
     "description": "Version 4 enables single sign-on",
     "kind": "plugin"
   },
