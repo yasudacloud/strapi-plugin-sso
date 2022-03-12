@@ -1,4 +1,5 @@
 import React, {memo, useEffect, useState} from 'react';
+import { HeaderLayout } from '@strapi/design-system/Layout';
 import {CheckPermissions} from '@strapi/helper-plugin';
 import {useIntl} from 'react-intl';
 import { Helmet } from 'react-helmet';
@@ -88,6 +89,13 @@ const HomePage = () => {
   return (
     <CheckPermissions permissions={[{ action: 'plugin::strapi-plugin-sso.read', subject: null }]}>
       <Helmet title={'Single Sign On'} />
+      <HeaderLayout
+        title={'Single Sign On'}
+        subtitle={formatMessage({
+          id: getTrad('page.title'),
+          defaultMessage: 'Default role setting at first login'
+        })}
+      />
       <Box padding={10}>
         {
           showSuccess && (
@@ -106,10 +114,6 @@ const HomePage = () => {
             </AlertMessage>
           )
         }
-        <Title>{formatMessage({
-          id: getTrad('page.title'),
-          defaultMessage: 'Default role setting at first login'
-        })}</Title>
         <Table colCount={roles.length + 1} rowCount={ssoRoles.length}>
           <Thead>
             <Tr>
