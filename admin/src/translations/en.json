@@ -1,5 +1,7 @@
 {
   "page.title": "Default role setting at first login",
   "page.notes": "This will not be reflected for already registered users.",
-  "page.save": "Save"
+  "page.save": "Save",
+  "page.save.success": "Updated settings",
+  "page.save.error": "Update failed."
 }
