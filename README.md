@@ -12,6 +12,9 @@ Currently supports Cognito user pool and Google accounts.
 
 Please read the [documents](#user-content-documentationenglish) for some precautions.
 
+**This plugin is developed by one engineer.**
+**If possible, consider using the Gold Plan features.**
+
 # Easy to install
 ```shell
 yarn add strapi-plugin-sso
