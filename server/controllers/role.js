@@ -16,7 +16,6 @@ async function find(ctx) {
 
 async function update(ctx) {
   try {
-    throw new Error("")
     const {roles} = ctx.request.body
     const roleService = strapi.plugin('strapi-plugin-sso').service('role')
     await roleService.update(roles)

@@ -26,7 +26,7 @@ const OAUTH_SCOPE = 'https://www.googleapis.com/auth/userinfo.email https://www.
  * @return {Promise<*>}
  */
 async function googleSignIn(ctx) {
-  const config = configValidation() //strapi.config.get('plugin.strapi-plugin-sso')
+  const config = configValidation()
   const redirectUri = encodeURIComponent(config['GOOGLE_OAUTH_REDIRECT_URI'])
   const url = `${OAUTH_ENDPOINT}?client_id=${config['GOOGLE_OAUTH_CLIENT_ID']}&redirect_uri=${redirectUri}&scope=${OAUTH_SCOPE}&response_type=${OAUTH_RESPONSE_TYPE}`
   ctx.set('Location', url)
