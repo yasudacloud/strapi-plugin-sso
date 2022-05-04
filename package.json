@@ -8,6 +8,9 @@
     "description": "Version 4 enables single sign-on",
     "kind": "plugin"
   },
+  "scripts": {
+    "test": "jest"
+  },
   "keywords": [
     "strapi",
     "plugin",
@@ -42,5 +45,16 @@
     "node": ">=14.x.x <=17.x.x",
     "npm": ">=7.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^28.0.3"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      ".tmp",
+      ".cache"
+    ],
+    "testEnvironment": "node"
+  }
 }
