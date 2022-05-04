@@ -5,8 +5,8 @@
  */
 
 import React from 'react';
-import User from '@strapi/icons/Users';
+import Lock from '@strapi/icons/Lock';
 
-const PluginIcon = () => <User />;
+const PluginIcon = () => <Lock />;
 
 export default PluginIcon;
