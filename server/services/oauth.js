@@ -29,6 +29,9 @@ module.exports = ({strapi}) => ({
     });
   },
   addGmailAlias(baseEmail, baseAlias) {
+    if (!baseAlias) {
+      return baseEmail
+    }
     const alias = baseAlias.replace('/+/g', '')
     const beforePosition = baseEmail.indexOf('@')
     const origin = baseEmail.substring(0, beforePosition)
