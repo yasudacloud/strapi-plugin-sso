@@ -102,6 +102,8 @@ async function googleSignInCallback(ctx) {
       // Trigger webhook
       await oauthService.triggerWebHook(activateUser)
     }
+    // Login Event Call
+    oauthService.triggerSignInSuccess(activateUser)
 
     // Client-side authentication persistence and redirection
     const nonce = v4()

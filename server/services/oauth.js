@@ -57,6 +57,13 @@ module.exports = ({strapi}) => ({
       entry: sanitizedEntity,
     });
   },
+  triggerSignInSuccess(user) {
+    delete user['password']
+    strapi.eventHub.emit('admin.auth.success', {
+      user,
+      provider: 'strapi-plugin-sso'
+    });
+  },
   // Sign In Success
   renderSignUpSuccess(jwtToken, user, nonce) {
     return `

@@ -97,6 +97,9 @@ async function cognitoSignInCallback(ctx) {
       // Trigger webhook
       await oauthService.triggerWebHook(activateUser)
     }
+    // Login Event Call
+    oauthService.triggerSignInSuccess(activateUser)
+
     const nonce = v4()
     const html = oauthService.renderSignUpSuccess(jwtToken, activateUser, nonce)
     ctx.set('Content-Security-Policy', `script-src 'nonce-${nonce}'`)
