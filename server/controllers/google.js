@@ -30,7 +30,7 @@ async function googleSignIn(ctx) {
   const redirectUri = encodeURIComponent(config['GOOGLE_OAUTH_REDIRECT_URI'])
   const url = `${OAUTH_ENDPOINT}?client_id=${config['GOOGLE_OAUTH_CLIENT_ID']}&redirect_uri=${redirectUri}&scope=${OAUTH_SCOPE}&response_type=${OAUTH_RESPONSE_TYPE}`
   ctx.set('Location', url)
-  return ctx.send({}, 301)
+  return ctx.send({}, 302)
 }
 
 /**
