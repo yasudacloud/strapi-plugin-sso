@@ -54,7 +54,9 @@ module.exports = ({env}) => ({
 })
 ```
 
-
+# Support
+- ✅ NodeJS <= 18.x
+- Strapi 4.1.7 or higher
 
 # Documentation(English)
 

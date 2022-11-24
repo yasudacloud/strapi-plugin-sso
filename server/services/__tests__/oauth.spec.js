@@ -1,5 +1,5 @@
 'use strict';
-const oauth = require("../../services/oauth");
+const oauth = require("../oauth");
 
 describe('oauth service', () => {
   const strapi = jest.fn()
