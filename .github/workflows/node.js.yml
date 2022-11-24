@@ -25,7 +25,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm i
+    - run: rm -rf node_modules && npm i --save-peer
     - run: npm run build --if-present
     - run: npm run lint
     - run: npm run test
