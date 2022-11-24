@@ -21,9 +21,7 @@
     "Cognito"
   ],
   "peerDependencies": {
-    "@strapi/strapi": "^4.1.7",
-    "@strapi/admin": "^4.x.x",
-    "@strapi/utils": "^4.x.x"
+    "@strapi/strapi": "^4.1.7"
   },
   "dependencies": {
     "generate-password": "^1.7.0"
