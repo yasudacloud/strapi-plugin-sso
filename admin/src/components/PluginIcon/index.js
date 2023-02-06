@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import Lock from '@strapi/icons/Lock';
+import {Lock} from '@strapi/icons';
 
 const PluginIcon = () => <Lock />;
 

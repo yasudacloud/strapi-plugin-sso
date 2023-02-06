@@ -1,15 +1,21 @@
 import React, {memo, useEffect, useState} from 'react';
-import {HeaderLayout} from '@strapi/design-system/Layout';
+import {
+  Alert,
+  Button,
+  Checkbox,
+  HeaderLayout,
+  Box,
+  BaseCheckbox,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Td,
+  Th
+} from '@strapi/design-system';
 import {CheckPermissions} from '@strapi/helper-plugin';
 import {useIntl} from 'react-intl';
 import {Helmet} from 'react-helmet';
-import {Box} from '@strapi/design-system/Box';
-import {BaseCheckbox} from '@strapi/design-system/BaseCheckbox'
-import {Tbody, Tr, Td, Th} from '@strapi/design-system/Table';
-import {Table, Thead} from '@strapi/design-system/Table'
-import {Checkbox} from '@strapi/design-system/Checkbox';
-import {Button} from '@strapi/design-system/Button';
-import {Alert} from '@strapi/design-system/Alert';
 import axios from '../../utils/axiosInstance'
 import styled from 'styled-components'
 import getTrad from "../../utils/getTrad";
@@ -52,7 +58,7 @@ const HomePage = () => {
 
   const onChangeCheck = (value, ssoId, role) => {
     for (const ssoRole of ssoRoles) {
-      if (ssoRole['oauth-type'] === ssoId) {
+      if (ssoRole['oauth_type'] === ssoId) {
         if (ssoRole['role']) {
           if (value) {
             ssoRole['role'].push(role)
@@ -70,7 +76,7 @@ const HomePage = () => {
     try {
       await axios.put('/strapi-plugin-sso/sso-roles', {
         roles: ssoRoles.map(role => ({
-          'oauth-type': role['oauth-type'], role: role['role']
+          'oauth_type': role['oauth_type'], role: role['role']
         }))
       })
       setSuccess(true)
@@ -150,7 +156,7 @@ const HomePage = () => {
           <Tbody>
             {
               ssoRoles.map((ssoRole) => (
-                <Tr key={ssoRole['oauth-type']}>
+                <Tr key={ssoRole['oauth_type']}>
                   <Td>{ssoRole['name']}</Td>
                   {
                     roles.map((role) => (
@@ -158,7 +164,7 @@ const HomePage = () => {
                         <Checkbox
                           value={ssoRole['role'] && ssoRole['role'].includes(role['id'])}
                           onValueChange={(value) => {
-                            onChangeCheck(value, ssoRole['oauth-type'], role['id'])
+                            onChangeCheck(value, ssoRole['oauth_type'], role['id'])
                           }}
                         >{''}</Checkbox>
                       </Th>

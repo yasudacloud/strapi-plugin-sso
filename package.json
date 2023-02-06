@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-sso",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Plug-in for single sign-on with Strapi!",
   "strapi": {
     "displayName": "Single Sign On",
@@ -21,7 +21,7 @@
     "Cognito"
   ],
   "peerDependencies": {
-    "@strapi/strapi": "^4.1.7"
+    "@strapi/strapi": "^4.6.0"
   },
   "dependencies": {
     "generate-password": "^1.7.0"
