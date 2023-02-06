@@ -5,10 +5,10 @@ module.exports = ({strapi}) => ({
   SSO_TYPE_COGNITO: '2',
   ssoRoles() {
     return [{
-      'oauth-type': this.SSO_TYPE_GOOGLE,
+      'oauth_type': this.SSO_TYPE_GOOGLE,
       name: 'Google'
     }, {
-      'oauth-type': this.SSO_TYPE_COGNITO,
+      'oauth_type': this.SSO_TYPE_COGNITO,
       name: 'Cognito'
     }]
   },
@@ -16,14 +16,14 @@ module.exports = ({strapi}) => ({
     return await strapi
       .query('plugin::strapi-plugin-sso.roles')
       .findOne({
-        'oauth-type': this.SSO_TYPE_GOOGLE
+        'oauth_type': this.SSO_TYPE_GOOGLE
       })
   },
   async cognitoRoles() {
     return await strapi
       .query('plugin::strapi-plugin-sso.roles')
       .findOne({
-        'oauth-type': this.SSO_TYPE_COGNITO
+        'oauth_type': this.SSO_TYPE_COGNITO
       })
   },
   async find() {
@@ -35,16 +35,16 @@ module.exports = ({strapi}) => ({
     const query = strapi.query('plugin::strapi-plugin-sso.roles')
     await Promise.all(
       roles.map((role) => {
-        return query.findOne({'oauth-type': role['oauth-type']}).then(ssoRole => {
+        return query.findOne({'oauth_type': role['oauth_type']}).then(ssoRole => {
           if (ssoRole) {
             query.update({
-              where: {'oauth-type': role['oauth-type']},
+              where: {'oauth_type': role['oauth_type']},
               data: {roles: role.role},
             });
           } else {
             query.create({
               data: {
-                'oauth-type': role['oauth-type'],
+                'oauth_type': role['oauth_type'],
                 roles: role.role,
               }
             })

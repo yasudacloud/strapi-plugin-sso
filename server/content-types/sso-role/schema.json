@@ -18,7 +18,7 @@
     }
   },
   "attributes": {
-    "oauth-type": {
+    "oauth_type": {
       "type": "string",
       "configurable": false,
       "required": true

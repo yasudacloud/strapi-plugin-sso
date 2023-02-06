@@ -6,7 +6,7 @@ async function find(ctx) {
   const ssoConstants = roleService.ssoRoles()
   for (const sso of ssoConstants) {
     for (const role of roles) {
-      if (role['oauth-type'] === sso['oauth-type']) {
+      if (role['oauth_type'] === sso['oauth_type']) {
         sso['role'] = role['roles']
       }
     }
