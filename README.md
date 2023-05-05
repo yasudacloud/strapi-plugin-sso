@@ -49,6 +49,13 @@ module.exports = ({env}) => ({
       COGNITO_OAUTH_DOMAIN: '[OAuth Domain created in AWS Cognito]',
       COGNITO_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/cognito/callback', //  // URI after successful login
       COGNITO_OAUTH_REGION: 'ap-northeast-1', // AWS Cognito Region 
+
+      // AzureAD
+      AZUREAD_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/azuread/callback',
+      AZUREAD_TENANT_ID: '[Tenant ID created in AzureAD]',
+      AZUREAD_OAUTH_CLIENT_ID: '[Client ID created in AzureAD]', // [Application (client) ID]
+      AZUREAD_OAUTH_CLIENT_SECRET: '[Client Secret created in AzureAD]',
+      AZUREAD_SCOPE: 'user.read', // https://learn.microsoft.com/en-us/graph/permissions-reference
     }
   }
 })
@@ -66,6 +73,8 @@ module.exports = ({env}) => ({
 
 [Cognito Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/cognito/setup.md)
 
+[AzureAD Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/azuread/setup.md)
+
 
 # Documentation(Japanese)
 [Description](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/README.md)
@@ -77,6 +86,8 @@ module.exports = ({env}) => ({
 [Cognito Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/cognito/setup.md)
 
 [Cognito Single Sign-On Specifications](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/cognito/admin.md)
+
+TODO AzureAD Single Sign On Setup
 
 # Demo
 ![CognitoDemo](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/demo.gif?raw=true "DemoMovie")
