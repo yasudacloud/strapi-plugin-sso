@@ -5,17 +5,19 @@ module.exports = ({strapi}) => ({
   SSO_TYPE_COGNITO: '2',
   SSO_TYPE_AZUREAD: "3",
   ssoRoles() {
-    return [{
-      'oauth_type': this.SSO_TYPE_GOOGLE,
-      name: 'Google'
-    }, {
-      'oauth_type': this.SSO_TYPE_COGNITO,
-      name: 'Cognito'
-    }],
-    {
-      oauth_type: this.SSO_TYPE_AZUREAD,
-      name: "AzureAD",
-    },
+    return [
+      {
+        'oauth_type': this.SSO_TYPE_GOOGLE,
+        name: 'Google'
+      }, {
+        'oauth_type': this.SSO_TYPE_COGNITO,
+        name: 'Cognito'
+      },
+      {
+       'oauth_type': this.SSO_TYPE_AZUREAD,
+        name: "AzureAD",
+      },
+    ];
   },
   async googleRoles() {
     return await strapi
