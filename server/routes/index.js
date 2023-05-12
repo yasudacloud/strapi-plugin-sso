@@ -33,6 +33,22 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: '/azuread',
+    handler: 'azuread.azureAdSignIn',
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: 'GET',
+    path: '/azuread/callback',
+    handler: 'azuread.azureAdSignInCallback',
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: 'GET',
     path: '/sso-roles',
     handler: 'role.find'
   },
