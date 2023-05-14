@@ -6,7 +6,7 @@
 
 This plugin can provide single sign-on.
 
-You will be able to log in to the administration screen using your Google account or Cognito User Pool.
+You will be able to log in to the administration screen using your Google account or Cognito User Pool or Azure.
 
 Currently supports Cognito user pool and Google accounts.
 
