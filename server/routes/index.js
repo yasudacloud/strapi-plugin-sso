@@ -50,7 +50,7 @@ module.exports = [
   {
     method: 'GET',
     path: '/keycloack',
-    handler: 'keycloack.keycloackSignIn',
+    handler: 'keycloack.keycloakSignIn',
     config: {
       auth: false,
     },
