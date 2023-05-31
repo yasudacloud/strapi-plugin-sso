@@ -49,12 +49,28 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: '/keycloack',
+    handler: 'keycloack.keycloackSignIn',
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: 'GET',
+    path: '/keycloack/callback',
+    handler: 'keycloack.keycloackSignInCallback',
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: 'GET',
     path: '/sso-roles',
-    handler: 'role.find'
+    handler: 'role.find',
   },
   {
     method: 'PUT',
     path: '/sso-roles',
-    handler: 'role.update'
-  }
+    handler: 'role.update',
+  },
 ];

@@ -4,6 +4,7 @@ module.exports = ({strapi}) => ({
   SSO_TYPE_GOOGLE: '1',
   SSO_TYPE_COGNITO: '2',
   SSO_TYPE_AZUREAD: "3",
+  SSO_TYPE_KEYCLOAK: "4",
   ssoRoles() {
     return [
       {
@@ -16,6 +17,10 @@ module.exports = ({strapi}) => ({
       {
        'oauth_type': this.SSO_TYPE_AZUREAD,
         name: "AzureAD",
+      },
+      {
+        'oauth_type': this.SSO_TYPE_KEYCLOAK,
+        name: "Keycloak",
       },
     ];
   },
@@ -36,6 +41,11 @@ module.exports = ({strapi}) => ({
   async azureAdRoles() {
     return await strapi.query('plugin::strapi-plugin-sso.roles').findOne({
       oauth_type: this.SSO_TYPE_AZUREAD,
+    });
+  },
+  async keycloakAdRoles() {
+    return await strapi.query('plugin::strapi-plugin-sso.roles').findOne({
+      oauth_type: this.SSO_TYPE_KEYCLOAK,
     });
   },
   async find() {
