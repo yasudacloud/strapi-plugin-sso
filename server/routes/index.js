@@ -49,16 +49,16 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: '/keycloack',
-    handler: 'keycloack.keycloakSignIn',
+    path: '/keycloak',
+    handler: 'keycloak.keycloakSignIn',
     config: {
       auth: false,
     },
   },
   {
     method: 'GET',
-    path: '/keycloack/callback',
-    handler: 'keycloack.keycloackSignInCallback',
+    path: '/keycloak/callback',
+    handler: 'keycloak.keycloakSignInCallback',
     config: {
       auth: false,
     },
