@@ -1,8 +1,13 @@
-const {getService} = require("@strapi/admin/server/utils");
+const { getService } = require('@strapi/admin/server/utils');
 const strapiUtils = require('@strapi/utils');
 const generator = require('generate-password');
 
-module.exports = ({strapi}) => ({
+module.exports = ({ strapi }) => ({
+  async updateUserRoles(userId, roles = []) {
+    return getService('user').updateById(userId, {
+      roles,
+    });
+  },
   async createUser(email, lastname, firstname, locale, roles = []) {
     const createdUser = await getService('user').create({
       firstname: firstname ? firstname : 'unset',
@@ -23,34 +28,34 @@ module.exports = ({strapi}) => ({
           lowercase: true,
           uppercase: true,
           exclude: '()+_-=}{[]|:;"/?.><,`~',
-          strict: true
+          strict: true,
         }),
-      }
+      },
     });
   },
   addGmailAlias(baseEmail, baseAlias) {
     if (!baseAlias) {
-      return baseEmail
+      return baseEmail;
     }
-    const alias = baseAlias.replace('/+/g', '')
-    const beforePosition = baseEmail.indexOf('@')
-    const origin = baseEmail.substring(0, beforePosition)
-    const domain = baseEmail.substring(beforePosition)
-    return `${origin}+${alias}${domain}`
+    const alias = baseAlias.replace('/+/g', '');
+    const beforePosition = baseEmail.indexOf('@');
+    const origin = baseEmail.substring(0, beforePosition);
+    const domain = baseEmail.substring(beforePosition);
+    return `${origin}+${alias}${domain}`;
   },
   localeFindByHeader(headers) {
     if (headers['accept-language'] && headers['accept-language'].includes('ja')) {
-      return 'ja'
+      return 'ja';
     } else {
-      return 'en'
+      return 'en';
     }
   },
   async triggerWebHook(user) {
-    const {ENTRY_CREATE} = strapiUtils.webhook.webhookEvents;
+    const { ENTRY_CREATE } = strapiUtils.webhook.webhookEvents;
     const modelDef = strapi.getModel('admin::user');
     const sanitizedEntity = await strapiUtils.sanitize.sanitizers.defaultSanitizeOutput(
       modelDef,
-      user
+      user,
     );
     strapi.eventHub.emit(ENTRY_CREATE, {
       model: modelDef.modelName,
@@ -58,10 +63,10 @@ module.exports = ({strapi}) => ({
     });
   },
   triggerSignInSuccess(user) {
-    delete user['password']
+    delete user['password'];
     strapi.eventHub.emit('admin.auth.success', {
       user,
-      provider: 'strapi-plugin-sso'
+      provider: 'strapi-plugin-sso',
     });
   },
   // Sign In Success
@@ -96,5 +101,5 @@ module.exports = ({strapi}) => ({
 <p>${message}</p>
 </body>
 </html>`;
-  }
+  },
 });

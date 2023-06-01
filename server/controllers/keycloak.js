@@ -2,48 +2,45 @@
 const axios = require('axios');
 const { v4 } = require('uuid');
 const { getService } = require('@strapi/admin/server/utils');
-const pkceChallenge = require('pkce-challenge').default;
-
-const config = strapi.config.get('plugin.strapi-plugin-sso');
-const debug = config['DEBUG'];
 
 const configValidation = () => {
-  if (
-    config['KEYCLOAK_OAUTH_CLIENT_ID'] &&
-    config['KEYCLOAK_OAUTH_CLIENT_SECRET'] &&
-    config['KEYCLOAK_OAUTH_REALM_ID']
-  ) {
-    return config;
+  const {
+    KEYCLOAK_OAUTH_REDIRECT_URI,
+    KEYCLOAK_OAUTH_URL,
+    KEYCLOAK_OAUTH_REALM_ID,
+    KEYCLOAK_OAUTH_CLIENT_ID,
+    KEYCLOAK_OAUTH_CLIENT_SECRET,
+    DEBUG,
+  } = strapi.config.get('plugin.strapi-plugin-sso');
+
+  if (KEYCLOAK_OAUTH_CLIENT_ID && KEYCLOAK_OAUTH_CLIENT_SECRET && KEYCLOAK_OAUTH_REALM_ID) {
+    const endpoint = KEYCLOAK_OAUTH_URL.replace('{realm_id}', KEYCLOAK_OAUTH_REALM_ID);
+    return {
+      endpoint,
+      authEndpoint: `${endpoint}/auth`,
+      tokenEndpoint: `${endpoint}/token`,
+      userInfoEndpoint: `${endpoint}/userinfo`,
+      redirectEndpoint: KEYCLOAK_OAUTH_REDIRECT_URI,
+      debug: DEBUG,
+      clientId: KEYCLOAK_OAUTH_CLIENT_ID,
+      clientSecret: KEYCLOAK_OAUTH_CLIENT_SECRET,
+      scope: 'openid email profile offline_access',
+    };
   }
   throw new Error(
     'KEYCLOAK_OAUTH_CLIENT_ID, KEYCLOAK_OAUTH_CLIENT_SECRET, and KEYCLOAK_OAUTH_REALM_ID are required',
   );
 };
 
-/**
- * Common constants
- */
-const KEYCLOAK_ENDPOINT = strapi.config['KEYCLOAK_OAUTH_URL'].replace(
-  '{realm_id}',
-  strapi.config['KEYCLOAK_OAUTH_REALM_ID'],
-);
-const OAUTH_ENDPOINT = `${KEYCLOAK_ENDPOINT}/auth`;
-const OAUTH_TOKEN_ENDPOINT = `${KEYCLOAK_ENDPOINT}/token`;
-const OAUTH_USER_INFO_ENDPOINT = `${KEYCLOAK_ENDPOINT}/userinfo`;
-const OAUTH_LOGOUT_ENDPOINT = `${KEYCLOAK_ENDPOINT}/logout`;
-const OAUTH_SCOPE = 'openid profile offline_access';
-
 async function keycloakSignIn(ctx) {
-  configValidation();
+  const { authEndpoint, debug, clientId, redirectEndpoint, scope } = configValidation();
 
   debug && strapi.log.info(`[KEYCLOAK] Login initiated. Started new session.`);
   debug &&
     strapi.log.info(`[KEYCLOAK] Redirect URL after login is set to ${ctx.query.redirectTo}.`);
+  const redirectUri = encodeURIComponent(redirectEndpoint);
 
-  const clientId = config['KEYCLOAK_OAUTH_CLIENT_ID'];
-  const redirectUri = encodeURIComponent(config['KEYCLOAK_OAUTH_REDIRECT_URI']);
-
-  const url = `${KEYCLOAK_ENDPOINT}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${OAUTH_SCOPE}&response_type=code&state=${encodeURIComponent(
+  const url = `${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&state=${encodeURIComponent(
     ctx.query.redirectTo,
   )}`;
 
@@ -54,9 +51,9 @@ async function keycloakSignIn(ctx) {
 }
 
 async function keycloakSignInCallback(ctx) {
+  const { debug, userInfoEndpoint, tokenEndpoint, clientId, clientSecret, redirectEndpoint } =
+    configValidation();
   debug && strapi.log.info(`[KEYCLOAK] Callback received.`);
-
-  configValidation();
 
   const tokenService = getService('token');
   const userService = getService('user');
@@ -67,58 +64,62 @@ async function keycloakSignInCallback(ctx) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`));
   }
 
+  debug && strapi.log.info(`[KEYCLOAK] Query context. ${JSON.stringify(ctx.query)}`);
+
   const params = new URLSearchParams();
   params.append('code', ctx.query.code);
-  params.append('client_id', config['KEYCLOAK_OAUTH_CLIENT_ID']);
-  params.append('client_secret', config['KEYCLOAK_OAUTH_CLIENT_SECRET']);
-  params.append('redirect_uri', config['KEYCLOAK_OAUTH_REDIRECT_URI']);
+  params.append('client_id', clientId);
+  params.append('client_secret', clientSecret);
+  params.append('redirect_uri', redirectEndpoint);
   params.append('grant_type', 'authorization_code');
 
   try {
-    const response = await axios.post(OAUTH_TOKEN_ENDPOINT, params, {
+    const response = await axios.post(tokenEndpoint, params, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
-    debug && strapi.log.info(`[KEYCLOAK] Token endpoint response.`, response);
-    const userResponse = await axios.get(OAUTH_USER_INFO_ENDPOINT, {
+    debug &&
+      strapi.log.info(`[KEYCLOAK] Token endpoint response: ${JSON.stringify(response.data)}`);
+    const userResponse = await axios.get(userInfoEndpoint, {
       headers: {
         Authorization: `Bearer ${response.data.access_token}`,
       },
     });
-    debug && strapi.log.info(`[KEYCLOAK] Token endpoint response.`, userResponse);
+    debug &&
+      strapi.log.info(`[KEYCLOAK] Token endpoint response. ${JSON.stringify(userResponse.data)}`);
 
-    const dbUser = await userService.findOneByEmail(userResponse.data.email);
+    const dbUser = await userService.findOneByEmail(userResponse.data.email, ['roles']);
+    const keycloakRoles = await roleService.keycloakAdRoles();
+    const roles =
+      keycloakRoles && keycloakRoles['roles']
+        ? keycloakRoles['roles'].map((role) => ({
+            id: role,
+          }))
+        : [];
     let activateUser;
     let jwtToken;
-    debug && strapi.log.info(`[KEYCLOAK] DB user.`, dbUser);
+    debug && strapi.log.info(`[KEYCLOAK] DB user. ${JSON.stringify(dbUser)}`);
 
     if (dbUser) {
       activateUser = dbUser;
+      await oauthService.updateUserRoles(dbUser.id, roles);
       jwtToken = await tokenService.createJwtToken(dbUser);
     } else {
-      const keycloakRoles = await roleService.keycloakAdRoles();
-      const roles =
-        keycloakRoles && keycloakRoles['roles']
-          ? keycloakRoles['roles'].map((role) => ({
-              id: role,
-            }))
-          : [];
-
-      debug && strapi.log.info(`[KEYCLOAK] Roles.`, keycloakRoles);
+      debug && strapi.log.info(`[KEYCLOAK] Roles. ${JSON.stringify(keycloakRoles)}`);
 
       const defaultLocale = oauthService.localeFindByHeader(ctx.request.headers);
-      // activateUser = await oauthService.createUser(
-      //   userResponse.data.email,
-      //   userResponse.data.family_name,
-      //   userResponse.data.given_name,
-      //   defaultLocale,
-      //   roles,
-      // );
-      // jwtToken = await tokenService.createJwtToken(activateUser);
+      activateUser = await oauthService.createUser(
+        userResponse.data.email,
+        userResponse.data.family_name,
+        userResponse.data.given_name,
+        defaultLocale,
+        roles,
+      );
+      jwtToken = await tokenService.createJwtToken(activateUser);
 
-      // // Trigger webhook
-      // await oauthService.triggerWebHook(activateUser);
+      // Trigger webhook
+      await oauthService.triggerWebHook(activateUser);
     }
     // Login Event Call
     oauthService.triggerSignInSuccess(activateUser);
@@ -128,7 +129,7 @@ async function keycloakSignInCallback(ctx) {
     ctx.set('Content-Security-Policy', `script-src 'nonce-${nonce}'`);
     ctx.send(html);
   } catch (e) {
-    console.error(e.response.data);
+    console.error(e);
     ctx.send(oauthService.renderSignUpError(e.message));
   }
 }
