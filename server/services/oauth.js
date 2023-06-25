@@ -18,7 +18,7 @@ module.exports = ({strapi}) => ({
         firstname: firstname ? firstname : 'unset',
         lastname: lastname ? lastname : 'user',
         password: generator.generate({
-          length: 12,
+          length: 43, // 256 bits (https://en.wikipedia.org/wiki/Password_strength#Random_passwords)
           numbers: true,
           lowercase: true,
           uppercase: true,
