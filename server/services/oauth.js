@@ -77,7 +77,7 @@ module.exports = ({strapi}) => ({
  window.addEventListener('load', function() {
    sessionStorage.setItem('jwtToken', '"${jwtToken}"');
    sessionStorage.setItem('userInfo', '${JSON.stringify(user)}');
-   location.href = '/admin'
+   location.href = '${strapi.config.admin.url}'
  })
 </script>
 </head>
