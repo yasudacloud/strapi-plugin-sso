@@ -4,15 +4,24 @@ const generator = require('generate-password');
 
 module.exports = ({strapi}) => ({
   async createUser(email, lastname, firstname, locale, roles = []) {
-    const createdUser = await getService('user').create({
+    // If the email address contains uppercase letters, convert it to lowercase and retrieve it from the DB. If not, register a new email address with a lower-case email address.
+    const userService = getService('user')
+    if (/[A-Z]/.test(email)) {
+      const dbUser = await userService.findOneByEmail(email.toLocaleLowerCase())
+      if (dbUser) {
+        return dbUser
+      }
+    }
+
+    const createdUser = await userService.create({
       firstname: firstname ? firstname : 'unset',
       lastname: lastname ? lastname : '',
-      email,
+      email: email.toLocaleLowerCase(),
       roles,
       preferedLanguage: locale,
     });
 
-    return await getService('user').register({
+    return await userService.register({
       registrationToken: createdUser.registrationToken,
       userInfo: {
         firstname: firstname ? firstname : 'unset',
