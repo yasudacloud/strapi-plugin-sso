@@ -56,6 +56,7 @@ module.exports = ({env}) => ({
       AZUREAD_OAUTH_CLIENT_ID: '[Client ID created in AzureAD]', // [Application (client) ID]
       AZUREAD_OAUTH_CLIENT_SECRET: '[Client Secret created in AzureAD]',
       AZUREAD_SCOPE: 'user.read', // https://learn.microsoft.com/en-us/graph/permissions-reference
+      AZUREAD_OAUTH_USE_OIDC: 'true', // 
     }
   }
 })

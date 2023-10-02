@@ -14,6 +14,7 @@ module.exports = {
     AZUREAD_OAUTH_CLIENT_ID: '',
     AZUREAD_OAUTH_CLIENT_SECRET: '',
     AZUREAD_SCOPE: 'user.read',
+    AZUREAD_OAUTH_USE_OIDC: 'true',
   },
   validator() {
   },
