@@ -52,6 +52,7 @@ async function azureAdSignInCallback(ctx) {
   const userService = getService("user");
   const oauthService = strapi.plugin("strapi-plugin-sso").service("oauth");
   const roleService = strapi.plugin("strapi-plugin-sso").service("role");
+  const isOIDC = config["AZUREAD_OAUTH_USE_OIDC"] !== 'false';
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`));
@@ -74,11 +75,19 @@ async function azureAdSignInCallback(ctx) {
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
-    const userResponse = await axios.get(OAUTH_USER_INFO_ENDPOINT, {
+    const apiResponse = await axios.get(isOIDC ? OAUTH_USER_INFO_ENDPOINT : 'https://graph.microsoft.com/v1.0/me', {
       headers: {
         Authorization: `Bearer ${response.data.access_token}`,
       },
     });
+
+    const userResponse = isOIDC ? apiResponse : {
+      data: {
+        email: apiResponse.data.userPrincipalName,
+        family_name: apiResponse.data.surname,
+        given_name: apiResponse.data.givenName,
+      }
+    }
 
     const dbUser = await userService.findOneByEmail(userResponse.data.email);
     let activateUser;
@@ -92,8 +101,8 @@ async function azureAdSignInCallback(ctx) {
       const roles =
         azureAdRoles && azureAdRoles["roles"]
           ? azureAdRoles["roles"].map((role) => ({
-              id: role,
-            }))
+            id: role,
+          }))
           : [];
 
       const defaultLocale = oauthService.localeFindByHeader(
