@@ -4,7 +4,8 @@ module.exports = ({strapi}) => ({
   SSO_TYPE_GOOGLE: '1',
   SSO_TYPE_COGNITO: '2',
   SSO_TYPE_AZUREAD: "3",
-  ssoRoles() {
+  SSO_TYPE_OIDC: '4',
+    ssoRoles() {
     return [
       {
         'oauth_type': this.SSO_TYPE_GOOGLE,
@@ -16,6 +17,10 @@ module.exports = ({strapi}) => ({
       {
        'oauth_type': this.SSO_TYPE_AZUREAD,
         name: "AzureAD",
+      },
+      {
+        'oauth_type': this.SSO_TYPE_OIDC,
+        name: 'OIDC'
       },
     ];
   },
@@ -44,12 +49,21 @@ module.exports = ({strapi}) => ({
       },
     });
   },
-  async find() {
+    async oidcRoles() {
+    return await strapi
+      .query('plugin::strapi-plugin-sso.roles')
+      .findOne({
+        where: {
+          'oauth_type': this.SSO_TYPE_OIDC
+        }
+      })
+  },
+    async find() {
     return await strapi
       .query('plugin::strapi-plugin-sso.roles')
       .findMany()
   },
-  async update(roles) {
+   async update(roles) {
     const query = strapi.query('plugin::strapi-plugin-sso.roles')
     await Promise.all(
       roles.map((role) => {
