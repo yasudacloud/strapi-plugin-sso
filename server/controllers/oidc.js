@@ -12,7 +12,7 @@ const configValidation = () => {
       ) {
     return config
   }
-  throw new Error('OIDC_CLIENT_ID, OIDC_CLIENT_SECRET, OIDC_ISSUER, OIDC_REDIRECT_URI, and OIDC_SCOPES are required')
+  throw new Error('OIDC_AUTHORIZATION_ENDPOINT,OIDC_TOKEN_ENDPOINT, OIDC_USER_INFO_ENDPOINT,OIDC_CLIENT_ID, OIDC_CLIENT_SECRET, OIDC_ISSUER, OIDC_REDIRECT_URI, and OIDC_SCOPES are required')
 }
 
 const oidcSignIn = async (ctx) => {
