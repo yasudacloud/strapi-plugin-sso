@@ -56,5 +56,21 @@ module.exports = [
     method: 'PUT',
     path: '/sso-roles',
     handler: 'role.update'
-  }
+  },
+  {
+    method: 'GET',
+    path: '/oidc',
+    handler: 'oidc.oidcSignIn',
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: 'GET',
+    path: '/oidc/callback',
+    handler: 'oidc.oidcSignInCallback',
+    config: {
+      auth: false,
+    },
+  },
 ];

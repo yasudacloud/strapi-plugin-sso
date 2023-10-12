@@ -6,9 +6,13 @@
 
 This plugin can provide single sign-on.
 
-You will be able to log in to the administration screen using your Google account or Cognito User Pool or Azure.
+You will be able to log in to the administration screen using one of the following providers: 
+- Google 
+- Cognito
+- Azure
+- OIDC
 
-Currently supports Cognito user pool and Google accounts.
+Currently supports Cognito user pool, Google accounts and OIDC.
 
 Please read the [documents](#user-content-documentationenglish) for some precautions.
 
@@ -27,7 +31,7 @@ npm i strapi-plugin-sso
 # Requirements
 - Strapi Version4
 - **strapi-plugin-sso**
-- Google Account or AWS Cognito UserPool
+- Google Account or AWS Cognito UserPool or a OIDC provider
 
 # Example Configuration
 ```javascript
@@ -56,6 +60,21 @@ module.exports = ({env}) => ({
       AZUREAD_OAUTH_CLIENT_ID: '[Client ID created in AzureAD]', // [Application (client) ID]
       AZUREAD_OAUTH_CLIENT_SECRET: '[Client Secret created in AzureAD]',
       AZUREAD_SCOPE: 'user.read', // https://learn.microsoft.com/en-us/graph/permissions-reference
+
+      // OpenID Connect
+      OIDC_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/oidc/callback', // URI after successful login
+      OIDC_CLIENT_ID: '[Client ID from OpenID Provider]',     
+      OIDC_CLIENT_SECRET: '[Client Secret from OpenID Provider]',
+      
+      OIDC_SCOPES: 'openid profile email', // https://oauth.net/2/scope/
+      // API Endpoints required for OIDC
+      OIDC_AUTHORIZATION_ENDPOINT: '[API Endpoint]', 
+      OIDC_TOKEN_ENDPOINT: '[API Endpoint]',
+      OIDC_USER_INFO_ENDPOINT: '[API Endpoint]',
+      OIDC_GRANT_TYPE: 'authorization_code', // https://oauth.net/2/grant-types/
+      // customizable username arguments
+      OIDC_FAMILY_NAME_FIELD: 'family_name',
+      OIDC_GIVEN_NAME_FIELD: 'given_name',
     }
   }
 })
@@ -75,6 +94,7 @@ module.exports = ({env}) => ({
 
 [AzureAD Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/azuread/setup.md)
 
+[OIDC Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/oidc/setup.md)
 
 # Documentation(Japanese)
 [Description](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/README.md)
@@ -88,6 +108,8 @@ module.exports = ({env}) => ({
 [Cognito Single Sign-On Specifications](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/cognito/admin.md)
 
 TODO AzureAD Single Sign On Setup
+
+TODO OIDC Single Sign On Setup
 
 # Demo
 ![CognitoDemo](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/demo.gif?raw=true "DemoMovie")
