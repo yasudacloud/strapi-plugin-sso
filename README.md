@@ -71,6 +71,7 @@ module.exports = ({env}) => ({
       OIDC_AUTHORIZATION_ENDPOINT: '[API Endpoint]', 
       OIDC_TOKEN_ENDPOINT: '[API Endpoint]',
       OIDC_USER_INFO_ENDPOINT: '[API Endpoint]',
+      OIDC_USER_INFO_ENDPOINT_WITH_AUTH_HEADER: false,
       OIDC_GRANT_TYPE: 'authorization_code', // https://oauth.net/2/grant-types/
       // customizable username arguments
       OIDC_FAMILY_NAME_FIELD: 'family_name',
