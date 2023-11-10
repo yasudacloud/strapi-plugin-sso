@@ -1,13 +1,12 @@
 const axios = require("axios");
 const { v4 } = require('uuid');
-const { getService } = require("@strapi/admin/server/utils");
 
 const configValidation = () => {
   const config = strapi.config.get('plugin.strapi-plugin-sso')
-  if (config['OIDC_CLIENT_ID'] && config['OIDC_CLIENT_SECRET']  
+  if (config['OIDC_CLIENT_ID'] && config['OIDC_CLIENT_SECRET']
       && config['OIDC_REDIRECT_URI'] && config['OIDC_SCOPES']
-      && config['OIDC_TOKEN_ENDPOINT'] && config['OIDC_USER_INFO_ENDPOINT'] 
-      && config['OIDC_GRANT_TYPE'] && config['OIDC_FAMILY_NAME_FIELD'] 
+      && config['OIDC_TOKEN_ENDPOINT'] && config['OIDC_USER_INFO_ENDPOINT']
+      && config['OIDC_GRANT_TYPE'] && config['OIDC_FAMILY_NAME_FIELD']
       && config['OIDC_GIVEN_NAME_FIELD'] && config['OIDC_AUTHORIZATION_ENDPOINT']
       ) {
     return config
@@ -27,8 +26,8 @@ const oidcSignIn = async (ctx) => {
 const oidcSignInCallback = async (ctx) => {
   const config = configValidation()
   const httpClient = axios.create()
-  const tokenService = getService('token')
-  const userService = getService('user')
+  const userService = strapi.service('admin::user')
+  const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
 
@@ -49,7 +48,7 @@ const oidcSignInCallback = async (ctx) => {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     })
-    
+
     let userInfoEndpointHeaders = {};
     let userInfoEndpointParameters = `?access_token=${response.data.access_token}`;
 
@@ -67,7 +66,7 @@ const oidcSignInCallback = async (ctx) => {
       userInfoEndpointHeaders
     );
 
-   
+
     const email =  userResponse.data.email
     const dbUser = await userService.findOneByEmail(email)
     let activateUser;
