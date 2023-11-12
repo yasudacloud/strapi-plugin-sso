@@ -1,11 +1,10 @@
-const {getService} = require("@strapi/admin/server/utils");
 const strapiUtils = require('@strapi/utils');
 const generator = require('generate-password');
 
 module.exports = ({strapi}) => ({
   async createUser(email, lastname, firstname, locale, roles = []) {
     // If the email address contains uppercase letters, convert it to lowercase and retrieve it from the DB. If not, register a new email address with a lower-case email address.
-    const userService = getService('user')
+    const userService = strapi.service('admin::user')
     if (/[A-Z]/.test(email)) {
       const dbUser = await userService.findOneByEmail(email.toLocaleLowerCase())
       if (dbUser) {
@@ -55,7 +54,7 @@ module.exports = ({strapi}) => ({
     }
   },
   async triggerWebHook(user) {
-    const {ENTRY_CREATE} = strapiUtils.webhook.webhookEvents;
+    const {ENTRY_CREATE} = strapi.webhookStore.allowedEvents;
     const modelDef = strapi.getModel('admin::user');
     const sanitizedEntity = await strapiUtils.sanitize.sanitizers.defaultSanitizeOutput(
       modelDef,

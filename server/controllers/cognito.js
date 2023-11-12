@@ -1,7 +1,6 @@
 'use strict';
 const axios = require("axios");
 const {v4} = require('uuid');
-const {getService} = require("@strapi/admin/server/utils");
 
 const configValidation = () => {
   const config = strapi.config.get('plugin.strapi-plugin-sso')
@@ -38,8 +37,8 @@ async function cognitoSignIn(ctx) {
 
 async function cognitoSignInCallback(ctx) {
   const config = configValidation()
-  const tokenService = getService('token')
-  const userService = getService('user')
+  const userService = strapi.service('admin::user')
+  const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
 
