@@ -54,7 +54,7 @@ module.exports = ({strapi}) => ({
     }
   },
   async triggerWebHook(user) {
-    const {ENTRY_CREATE} = strapiUtils.webhook.webhookEvents;
+    const {ENTRY_CREATE} = strapi.webhookStore.allowedEvents;
     const modelDef = strapi.getModel('admin::user');
     const sanitizedEntity = await strapiUtils.sanitize.sanitizers.defaultSanitizeOutput(
       modelDef,
