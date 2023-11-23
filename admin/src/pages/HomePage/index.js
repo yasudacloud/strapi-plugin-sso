@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useState} from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import {
   Alert,
   Button,
@@ -13,12 +13,12 @@ import {
   Td,
   Th
 } from '@strapi/design-system';
-import {CheckPermissions} from '@strapi/helper-plugin';
-import {useIntl} from 'react-intl';
-import {Helmet} from 'react-helmet';
-import axios from '../../utils/axiosInstance'
+import { CheckPermissions } from '@strapi/helper-plugin';
+import { useIntl } from 'react-intl';
+import { Helmet } from 'react-helmet';
+import axios from '../../axiosInstance'
 import styled from 'styled-components'
-import getTrad from "../../utils/getTrad";
+import getTrad from "../../getTrad";
 
 const ButtonWrapper = styled.div`
   margin: 10px 0 0 0;
@@ -42,7 +42,7 @@ const AlertMessage = styled.div`
 `
 
 const HomePage = () => {
-  const {formatMessage} = useIntl();
+  const { formatMessage } = useIntl();
   const [ssoRoles, setSSORoles] = useState([])
   const [roles, setRoles] = useState([])
   const [showSuccess, setSuccess] = useState(false)
@@ -93,8 +93,8 @@ const HomePage = () => {
   }
 
   return (
-    <CheckPermissions permissions={[{action: 'plugin::strapi-plugin-sso.read', subject: null}]}>
-      <Helmet title={'Single Sign On'}/>
+    <CheckPermissions permissions={[{ action: 'plugin::strapi-plugin-sso.read', subject: null }]}>
+      <Helmet title={'Single Sign On'} />
       <HeaderLayout
         title={'Single Sign On'}
         subtitle={formatMessage({
@@ -142,7 +142,7 @@ const HomePage = () => {
             <Tr>
               <Th>
                 {/* Not required, but if it doesn't exist, it's an error. */}
-                <BaseCheckbox style={{display: 'none'}}/>
+                <BaseCheckbox style={{ display: 'none' }} />
               </Th>
               {
                 roles.map(role => (
