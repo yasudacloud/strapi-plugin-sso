@@ -1,0 +1,99 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\yarn\bin\yarn.js publish --access public
+
+PATH: 
+  C:\Program Files\PowerShell\7;C:\Program Files\Eclipse Adoptium\jre-11.0.21.9-hotspot\bin;C:\Program Files\Eclipse Adoptium\jdk-21.0.1.12-hotspot\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Users\apost\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\ProgramData\chocolatey\bin;C:\Program Files\IcedTeaWeb\WebStart\bin;C:\Program Files (x86)\Microsoft SQL Server\160\DTS\Binn\;C:\Program Files\Azure Data Studio\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\BackupClient\CommandLineTool\;C:\Program Files (x86)\Common Files\Acronis\FileProtector\;C:\Program Files (x86)\Common Files\Acronis\FileProtector64\;C:\Program Files\BackupClient\PyShell\bin\;C:\Program Files (x86)\Common Files\Acronis\SnapAPI\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\PowerShell\7\;C:\Program Files\Git\cmd;C:\Program Files\RedHat\Podman\;C:\Users\apost\AppData\Local\Programs\Python\Python312\Scripts\;C:\Users\apost\AppData\Local\Programs\Python\Python312\;C:\Users\apost\AppData\Local\Programs\Python\Launcher\;C:\Users\apost\.cargo\bin;C:\Users\apost\AppData\Local\Microsoft\WindowsApps;C:\Users\apost\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\apost\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\bin;C:\Program Files (x86)\Nmap;C:\Users\apost\AppData\Local\Programs\oh-my-posh\bin;C:\Users\apost\AppData\Local\Microsoft\WinGet\Packages\lsd-rs.lsd_Microsoft.Winget.Source_8wekyb3d8bbwe\lsd-v1.0.0-x86_64-pc-windows-msvc;C:\Program Files\Azure Data Studio\bin;c:\bin\*;C:\Users\apost\.dotnet\tools;C:\Program Files\Xplorer\
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.18.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: canceled
+      at Interface.<anonymous> (C:\Users\apost\AppData\Roaming\nvm\v18.18.0\node_modules\yarn\lib\cli.js:137150:13)
+      at Interface.emit (node:events:517:28)
+      at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1132:18)
+      at ReadStream.onkeypress (node:internal/readline/interface:271:20)
+      at ReadStream.emit (node:events:517:28)
+      at emitKeys (node:internal/readline/utils:357:14)
+      at emitKeys.next (<anonymous>)
+      at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+      at ReadStream.emit (node:events:517:28)
+      at addChunk (node:internal/streams/readable:335:12)
+
+npm manifest: 
+  {
+    "name": "@adamrpostjr/strapi-plugin-sso",
+    "version": "0.4.21",
+    "description": "Plug-in for single sign-on with Strapi!",
+    "strapi": {
+      "displayName": "Single Sign On",
+      "name": "strapi-plugin-sso",
+      "description": "Version 4 enables single sign-on",
+      "kind": "plugin"
+    },
+    "scripts": {
+      "test": "jest",
+      "lint": "eslint"
+    },
+    "keywords": [
+      "strapi",
+      "plugin",
+      "oauth",
+      "SSO",
+      "Google",
+      "Cognito"
+    ],
+    "peerDependencies": {
+      "@strapi/strapi": "^4.6.0"
+    },
+    "dependencies": {
+      "generate-password": "^1.7.0",
+      "pkce-challenge": "^3.1.0"
+    },
+    "author": {
+      "name": "yasudacloud",
+      "url": "https://github.com/yasudacloud/strapi-plugin-sso"
+    },
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/yasudacloud/strapi-plugin-sso"
+    },
+    "bugs": {
+      "url": "https://github.com/yasudacloud/strapi-plugin-sso/issues"
+    },
+    "maintainers": [
+      {
+        "name": "yasudacloud"
+      }
+    ],
+    "engines": {
+      "node": ">=14.19.1 <=18.x.x",
+      "npm": ">=7.0.0"
+    },
+    "license": "MIT",
+    "devDependencies": {
+      "babel-eslint": "^10.1.0",
+      "eslint": "^8.28.0",
+      "jest": "^29.3.1"
+    },
+    "jest": {
+      "testPathIgnorePatterns": [
+        "/node_modules/",
+        ".tmp",
+        ".cache"
+      ],
+      "testEnvironment": "node"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
