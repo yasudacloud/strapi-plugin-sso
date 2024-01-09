@@ -18,7 +18,14 @@
     "oauth",
     "SSO",
     "Google",
-    "Cognito"
+    "Cognito",
+    "Keycloak"
+  ],
+  "files": [
+    "admin",
+    "server",
+    "strapi-admin.js",
+    "strapi-server.js"
   ],
   "peerDependencies": {
     "@strapi/strapi": "^4.6.0"
