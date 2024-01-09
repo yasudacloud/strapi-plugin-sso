@@ -10,6 +10,7 @@ You will be able to log in to the administration screen using one of the followi
 - Google 
 - Cognito
 - Azure
+- Keycloak
 - OIDC
 
 Currently supports Cognito user pool, Google accounts and OIDC.
@@ -78,6 +79,13 @@ module.exports = ({env}) => ({
       // customizable username arguments
       OIDC_FAMILY_NAME_FIELD: 'family_name',
       OIDC_GIVEN_NAME_FIELD: 'given_name',
+
+      // Keycloak config
+      KEYCLOAK_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/keycloak/callback',
+      KEYCLOAK_OAUTH_REALM_ID: '',
+      KEYCLOAK_OAUTH_CLIENT_ID: '',
+      KEYCLOAK_OAUTH_CLIENT_SECRET: '',
+      KEYCLOAK_OAUTH_URL: 'http://localhost:8080/realms/{realm_id}/protocol/openid-connect',
     }
   }
 })

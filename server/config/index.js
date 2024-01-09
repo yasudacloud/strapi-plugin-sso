@@ -28,6 +28,7 @@ module.exports = {
     OIDC_GRANT_TYPE: 'authorization_code',
     OIDC_FAMILY_NAME_FIELD: 'family_name',
     OIDC_GIVEN_NAME_FIELD: 'given_name',
+
     KEYCLOAK_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/keycloak/callback',
     KEYCLOAK_OAUTH_REALM_ID: '',
     KEYCLOAK_OAUTH_CLIENT_ID: '',
