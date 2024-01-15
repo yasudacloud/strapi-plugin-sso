@@ -16,6 +16,7 @@ module.exports = {
     AZUREAD_OAUTH_CLIENT_ID: '',
     AZUREAD_OAUTH_CLIENT_SECRET: '',
     AZUREAD_SCOPE: 'user.read',
+    AZUREAD_OAUTH_USE_OIDC: 'true',
 
     OIDC_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/oidc/callback',
     OIDC_CLIENT_ID: '',
