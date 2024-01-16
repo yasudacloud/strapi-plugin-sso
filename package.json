@@ -18,7 +18,14 @@
     "oauth",
     "SSO",
     "Google",
-    "Cognito"
+    "Cognito",
+    "Keycloak"
+  ],
+  "files": [
+    "admin",
+    "server",
+    "strapi-admin.js",
+    "strapi-server.js"
   ],
   "peerDependencies": {
     "@strapi/strapi": "^4.6.0"
@@ -51,6 +58,7 @@
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^8.28.0",
+    "eslint-config-prettier": "^8.8.0",
     "jest": "^29.3.1"
   },
   "jest": {

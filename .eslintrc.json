@@ -9,5 +9,8 @@
         "ecmaVersion": "latest"
     },
     "rules": {
+    },
+    "globals": {
+        "strapi": true
     }
 }
