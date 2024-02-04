@@ -17,6 +17,7 @@ This document provides instructions for integrating AzureAD as a Single Sign-On 
 | AZUREAD_TENANT_ID           | ✅       | -                                                        |
 | AZUREAD_OAUTH_REDIRECT_URI  | -        | http://localhost:1337/strapi-plugin-sso/azuread/callback |
 | AZUREAD_SCOPE               | -        | user.read                                                |
+| AZUREAD_OAUTH_USE_OIDC      | -        | true                                                     |
 
 ### Configuring environment variables
 
@@ -27,5 +28,6 @@ Use the following environment variables to configure the AzureAD integration:
 3. `AZUREAD_TENANT_ID`: The Tenant ID created in AzureAD.
 4. `AZUREAD_OAUTH_REDIRECT_URI`: The callback URL used by AzureAD to redirect the user after authentication. Defaults to 'http://localhost:1337/strapi-plugin-sso/azuread/callback'.
 5. `AZUREAD_SCOPE`: The permissions your application requires from the user. Defaults to 'user.read'. More information on permissions can be found in the [Microsoft Graph permissions reference](https://docs.microsoft.com/en-us/graph/permissions-reference).
+6. `AZUREAD_OAUTH_USE_OIDC`: Using OIDC calls graph.microsoft.com/oidc/userinfo while setting it to false calls /me as documented here : https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0&tabs=http
 
 Make sure to replace the placeholders with the actual values you obtained from AzureAD.
