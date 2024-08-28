@@ -3,9 +3,7 @@ import {
   Alert,
   Button,
   Checkbox,
-  HeaderLayout,
   Box,
-  BaseCheckbox,
   Table,
   Thead,
   Tbody,
@@ -13,10 +11,9 @@ import {
   Td,
   Th
 } from '@strapi/design-system';
-import {CheckPermissions} from '@strapi/helper-plugin';
+import { Page, Layouts } from '@strapi/strapi/admin';
 import {useIntl} from 'react-intl';
-import {Helmet} from 'react-helmet';
-import axios from '../../utils/axiosInstance'
+import { useFetchClient } from '@strapi/strapi/admin';
 import styled from 'styled-components'
 import getTrad from "../../utils/getTrad";
 
@@ -48,12 +45,14 @@ const HomePage = () => {
   const [showSuccess, setSuccess] = useState(false)
   const [showError, setError] = useState(false)
 
+  const { get, put } = useFetchClient();
+
   useEffect( () => {
     const init = async () => {
-      const ssoRoleResponse = await axios.get(`/strapi-plugin-sso/sso-roles`)
+      const ssoRoleResponse = await get(`/strapi-plugin-sso/sso-roles`)
       setSSORoles(ssoRoleResponse.data)
 
-      const roleResponse = await axios.get(`/admin/roles`)
+      const roleResponse = await get(`/admin/roles`)
       setRoles(roleResponse.data.data)
     }
     init()
@@ -77,7 +76,7 @@ const HomePage = () => {
   }
   const onClickSave = async () => {
     try {
-      await axios.put('/strapi-plugin-sso/sso-roles', {
+      await put('/strapi-plugin-sso/sso-roles', {
         roles: ssoRoles.map(role => ({
           'oauth_type': role['oauth_type'], role: role['role']
         }))
@@ -96,9 +95,8 @@ const HomePage = () => {
   }
 
   return (
-    <CheckPermissions permissions={[{action: 'plugin::strapi-plugin-sso.read', subject: null}]}>
-      <Helmet title={'Single Sign On'}/>
-      <HeaderLayout
+    <Page.Protect permissions={[{action: 'plugin::strapi-plugin-sso.read', subject: null}]}>
+      <Layouts.Header
         title={'Single Sign On'}
         subtitle={formatMessage({
           id: getTrad('page.title'),
@@ -145,7 +143,7 @@ const HomePage = () => {
             <Tr>
               <Th>
                 {/* Not required, but if it doesn't exist, it's an error. */}
-                <BaseCheckbox style={{display: 'none'}}/>
+                <Checkbox style={{display: 'none'}}/>
               </Th>
               {
                 roles.map(role => (
@@ -165,8 +163,8 @@ const HomePage = () => {
                     roles.map((role) => (
                       <Th key={role['id']}>
                         <Checkbox
-                          value={ssoRole['role'] && ssoRole['role'].includes(role['id'])}
-                          onValueChange={(value) => {
+                          checked={ssoRole['role'] && ssoRole['role'].includes(role['id'])}
+                          onCheckedChange={(value) => {
                             onChangeCheck(value, ssoRole['oauth_type'], role['id'])
                           }}
                         >{''}</Checkbox>
@@ -189,7 +187,7 @@ const HomePage = () => {
           })}</Button>
         </ButtonWrapper>
       </Box>
-    </CheckPermissions>
+    </Page.Protect>
   );
 }
 

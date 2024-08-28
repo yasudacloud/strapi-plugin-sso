@@ -1,8 +1,8 @@
 const axios = require("axios");
-const { v4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 const configValidation = () => {
-  const config = strapi.config.get('plugin.strapi-plugin-sso')
+  const config = strapi.config.get('plugin::strapi-plugin-sso')
   if (config['OIDC_CLIENT_ID'] && config['OIDC_CLIENT_SECRET']
       && config['OIDC_REDIRECT_URI'] && config['OIDC_SCOPES']
       && config['OIDC_TOKEN_ENDPOINT'] && config['OIDC_USER_INFO_ENDPOINT']
@@ -100,7 +100,7 @@ const oidcSignInCallback = async (ctx) => {
     oauthService.triggerSignInSuccess(activateUser)
 
     // Client-side authentication persistence and redirection
-    const nonce = v4()
+    const nonce = randomUUID()
     const html = oauthService.renderSignUpSuccess(jwtToken, activateUser, nonce)
     ctx.set('Content-Security-Policy', `script-src 'nonce-${nonce}'`)
     ctx.send(html);

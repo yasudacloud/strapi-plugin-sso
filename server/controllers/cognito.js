@@ -1,9 +1,9 @@
 'use strict';
 const axios = require("axios");
-const {v4} = require('uuid');
+const {randomUUID} = require('crypto');
 
 const configValidation = () => {
-  const config = strapi.config.get('plugin.strapi-plugin-sso')
+  const config = strapi.config.get('plugin::strapi-plugin-sso')
   if (config['COGNITO_OAUTH_CLIENT_ID'] && config['COGNITO_OAUTH_CLIENT_SECRET'] && config['COGNITO_OAUTH_DOMAIN']) {
     return config
   }
@@ -99,7 +99,7 @@ async function cognitoSignInCallback(ctx) {
     // Login Event Call
     oauthService.triggerSignInSuccess(activateUser)
 
-    const nonce = v4()
+    const nonce = randomUUID()
     const html = oauthService.renderSignUpSuccess(jwtToken, activateUser, nonce)
     ctx.set('Content-Security-Policy', `script-src 'nonce-${nonce}'`)
     ctx.send(html);
