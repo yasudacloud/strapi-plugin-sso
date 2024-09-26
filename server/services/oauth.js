@@ -1,7 +1,7 @@
 import strapiUtils from "@strapi/utils";
 import generator from "generate-password";
 
-export default ({ strapi }) => ({
+export default ({strapi}) => ({
   async createUser(email, lastname, firstname, locale, roles = []) {
     // If the email address contains uppercase letters, convert it to lowercase and retrieve it from the DB. If not, register a new email address with a lower-case email address.
     const userService = strapi.service("admin::user");
@@ -55,23 +55,26 @@ export default ({ strapi }) => ({
   },
   async triggerWebHook(user) {
     let ENTRY_CREATE
-    if (strapi.webhookStore && strapi.webhookStore.allowedEvents) {
-      ENTRY_CREATE = strapi.webhookStore.allowedEvents.get('ENTRY_CREATE');
-    } else {
-      // deprecated
-      ENTRY_CREATE = strapiUtils.webhook.webhookEvents.ENTRY_CREATE;
-    }
+    const webhookStore = strapi.serviceMap.get('webhookStore')
+    const eventHub = strapi.serviceMap.get('eventHub')
 
+    if (webhookStore) {
+      ENTRY_CREATE = webhookStore.allowedEvents.get('ENTRY_CREATE');
+    }
     const modelDef = strapi.getModel("admin::user");
-    const sanitizedEntity = await strapiUtils.sanitize.sanitizers.defaultSanitizeOutput(modelDef, user);
-    strapi.eventHub.emit(ENTRY_CREATE, {
+    const sanitizedEntity = await strapiUtils.sanitize.sanitizers.defaultSanitizeOutput({
+      schema: modelDef,
+      getModel: (uid2) => strapi.getModel(uid2)
+    }, user);
+    eventHub.emit(ENTRY_CREATE, {
       model: modelDef.modelName,
       entry: sanitizedEntity,
     });
   },
   triggerSignInSuccess(user) {
     delete user["password"];
-    strapi.eventHub.emit("admin.auth.success", {
+    const eventHub = strapi.serviceMap.get('eventHub')
+    eventHub.emit("admin.auth.success", {
       user,
       provider: "strapi-plugin-sso",
     });
