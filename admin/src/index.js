@@ -9,7 +9,7 @@ const name = pluginPkg.strapi.displayName;
 export default {
   register(app) {
     app.addMenuLink({
-      to: `/plugins/${PluginIcon}`,
+      to: `/plugins/${pluginId}`,
       icon: PluginIcon,
       intlLabel: {
         id: `${pluginId}.plugin.name`,
