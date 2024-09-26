@@ -1,4 +1,4 @@
-import {prefixPluginTranslations} from '@strapi/helper-plugin';
+import { getTranslation } from './utils/getTranslation';
 import pluginPkg from '../../package.json';
 import pluginId from './pluginId';
 import Initializer from './components/Initializer';
@@ -9,7 +9,7 @@ const name = pluginPkg.strapi.displayName;
 export default {
   register(app) {
     app.addMenuLink({
-      to: `/plugins/${pluginId}`,
+      to: `/plugins/${PluginIcon}`,
       icon: PluginIcon,
       intlLabel: {
         id: `${pluginId}.plugin.name`,
@@ -35,7 +35,7 @@ export default {
         return import(`./translations/${locale}.json`)
           .then(({ default: data }) => {
             return {
-              data: prefixPluginTranslations(data, pluginId),
+              data: getTranslation(data),
               locale,
             };
           })

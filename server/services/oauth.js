@@ -1,7 +1,7 @@
-const strapiUtils = require("@strapi/utils");
-const generator = require("generate-password");
+import strapiUtils from "@strapi/utils";
+import generator from "generate-password";
 
-module.exports = ({ strapi }) => ({
+export default ({ strapi }) => ({
   async createUser(email, lastname, firstname, locale, roles = []) {
     // If the email address contains uppercase letters, convert it to lowercase and retrieve it from the DB. If not, register a new email address with a lower-case email address.
     const userService = strapi.service("admin::user");
@@ -79,7 +79,7 @@ module.exports = ({ strapi }) => ({
   // Sign In Success
   renderSignUpSuccess(jwtToken, user, nonce) {
     // get REMEMBER_ME from config
-    const config = strapi.config.get("plugin.strapi-plugin-sso");
+    const config = strapi.config.get("plugin::strapi-plugin-sso");
     const REMEMBER_ME = config["REMEMBER_ME"];
 
     let storage = "sessionStorage";

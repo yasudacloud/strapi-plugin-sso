@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = async ({strapi}) => {
+export default async ({strapi}) => {
   const actions = [
     {
       section: 'plugins',

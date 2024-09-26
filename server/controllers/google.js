@@ -1,8 +1,8 @@
-const axios = require("axios");
-const {v4} = require('uuid');
+import axios from 'axios';
+import { randomUUID } from 'crypto';
 
 const configValidation = () => {
-  const config = strapi.config.get('plugin.strapi-plugin-sso')
+  const config = strapi.config.get('plugin::strapi-plugin-sso')
   if (config['GOOGLE_OAUTH_CLIENT_ID'] && config['GOOGLE_OAUTH_CLIENT_SECRET']) {
     return config
   }
@@ -105,7 +105,7 @@ async function googleSignInCallback(ctx) {
     oauthService.triggerSignInSuccess(activateUser)
 
     // Client-side authentication persistence and redirection
-    const nonce = v4()
+    const nonce = randomUUID()
     const html = oauthService.renderSignUpSuccess(jwtToken, activateUser, nonce)
     ctx.set('Content-Security-Policy', `script-src 'nonce-${nonce}'`)
     ctx.send(html);
@@ -115,7 +115,7 @@ async function googleSignInCallback(ctx) {
   }
 }
 
-module.exports = {
+export default {
   googleSignIn,
   googleSignInCallback
 }
