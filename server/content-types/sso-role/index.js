@@ -1,7 +1,5 @@
-'use strict';
+import schema from './schema';
 
-const schema = require('./schema');
-
-module.exports = {
+export default {
   schema
 }

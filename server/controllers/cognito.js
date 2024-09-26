@@ -1,6 +1,5 @@
-'use strict';
-const axios = require("axios");
-const {randomUUID} = require('crypto');
+import axios from 'axios';
+import { randomUUID } from 'crypto';
 
 const configValidation = () => {
   const config = strapi.config.get('plugin::strapi-plugin-sso')
@@ -109,7 +108,7 @@ async function cognitoSignInCallback(ctx) {
   }
 }
 
-module.exports = {
+export default {
   cognitoSignIn,
   cognitoSignInCallback
 }

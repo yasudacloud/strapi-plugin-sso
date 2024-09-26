@@ -1,7 +1,7 @@
-"use strict";
-const axios = require("axios");
-const { randomUUID } = require("crypto");
-const pkceChallenge = require("pkce-challenge").default;
+import axios from "axios";
+import { randomUUID } from "crypto";
+import pkceChallenge from "pkce-challenge";
+
 
 const configValidation = () => {
   const config = strapi.config.get("plugin::strapi-plugin-sso");
@@ -127,7 +127,7 @@ async function azureAdSignInCallback(ctx) {
   }
 }
 
-module.exports = {
+export default {
   azureAdSignIn,
   azureAdSignInCallback,
 };

@@ -1,5 +1,3 @@
-'use strict';
-
 async function find(ctx) {
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
   const roles = await roleService.find()
@@ -26,7 +24,7 @@ async function update(ctx) {
   }
 }
 
-module.exports = {
+export default {
   find,
   update
 }

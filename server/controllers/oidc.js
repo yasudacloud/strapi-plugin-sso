@@ -1,5 +1,5 @@
-const axios = require("axios");
-const { randomUUID } = require('crypto');
+import axios from 'axios';
+import { randomUUID } from 'crypto';
 
 const configValidation = () => {
   const config = strapi.config.get('plugin::strapi-plugin-sso')
@@ -110,7 +110,7 @@ const oidcSignInCallback = async (ctx) => {
   }
 };
 
-module.exports = {
+export default {
   oidcSignIn,
   oidcSignInCallback,
 };

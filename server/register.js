@@ -1,5 +1,3 @@
-'use strict';
-
-module.exports = ({ strapi }) => {
-  // registeration phase
+export default ({ strapi }) => {
+    // registeration phase
 };
