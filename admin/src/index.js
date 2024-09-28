@@ -9,7 +9,7 @@ const name = pluginPkg.strapi.displayName;
 export default {
   register(app) {
     app.addMenuLink({
-      to: `/plugins/${PluginIcon}`,
+      to: `/plugins/${pluginId}`,
       icon: PluginIcon,
       intlLabel: {
         id: `${pluginId}.plugin.name`,
@@ -33,9 +33,12 @@ export default {
     const importedTrads = await Promise.all(
       locales.map(locale => {
         return import(`./translations/${locale}.json`)
-          .then(({ default: data }) => {
+          .then(({default: data}) => {
+            const newData = Object.fromEntries(
+              Object.entries(data).map(([key, value]) => [getTranslation(key), value])
+            );
             return {
-              data: getTranslation(data),
+              data: newData,
               locale,
             };
           })
@@ -47,7 +50,6 @@ export default {
           });
       })
     );
-
     return Promise.resolve(importedTrads);
   },
 };
