@@ -20,24 +20,6 @@ En el archivo `config/plugins.js` de tu proyecto Strapi, agrega la siguiente con
 
 ```js
 module.exports = ({ env }) => ({
-  "strapi-webunal-audit-logs": {
-    enabled: true,
-  },
-  "strapi-specific-searcher": {
-    enabled: true,
-    resolve: "./src/plugins/strapi-specific-searcher",
-    config: {
-      elasticHost: env("ELASTIC_HOST", "http://localhost:9200"),
-      indexScheduleHour: env("INDEX_SCHEDULE_HOUR", "0"),
-      indexScheduleMinute: env("INDEX_SCHEDULE_MINUTE", "0"),
-      indexScheduleRepeat: env("INDEX_SCHEDULE_REPEAT", "daily"),
-      elasticUsername: env("ELASTIC_USERNAME", "elastic"),
-      elasticPassword: env("ELASTIC_PASSWORD", "changeme"),
-      elasticIndexAliasSpecific: env("ELASTIC_INDEX_ALIAS_SPECIFIC", "specific_alias"),
-      elasticIndexAliasGeneral: env("ELASTIC_INDEX_ALIAS_GENERAL", "general_alias"),
-      toIndexSinglesCollection: env.array("TO_INDEX_SINGLES_COLLECTION", []),
-    },
-  },
   "webunal-login": {
     enabled: true,
     resolve: "./src/plugins/webunal-login",
@@ -51,6 +33,7 @@ module.exports = ({ env }) => ({
       DOMAIN_NAME: "http://localhost:1337",
     },
   },
+  // Otros plugins...
 });
 ```
 
