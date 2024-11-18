@@ -11,38 +11,38 @@ module.exports = ({ strapi }) => ({
     ];
   },
   async googleRoles() {
-    return await strapi.query("plugin::strapi-plugin-sso.roles").findOne({
+    return await strapi.query("plugin::webunal-login.roles").findOne({
       where: {
         oauth_type: this.SSO_TYPE_GOOGLE,
       },
     });
   },
   async cognitoRoles() {
-    return await strapi.query("plugin::strapi-plugin-sso.roles").findOne({
+    return await strapi.query("plugin::webunal-login.roles").findOne({
       where: {
         oauth_type: this.SSO_TYPE_COGNITO,
       },
     });
   },
   async azureAdRoles() {
-    return await strapi.query("plugin::strapi-plugin-sso.roles").findOne({
+    return await strapi.query("plugin::webunal-login.roles").findOne({
       where: {
         oauth_type: this.SSO_TYPE_AZUREAD,
       },
     });
   },
   async oidcRoles() {
-    return await strapi.query("plugin::strapi-plugin-sso.roles").findOne({
+    return await strapi.query("plugin::webunal-login.roles").findOne({
       where: {
         oauth_type: this.SSO_TYPE_OIDC,
       },
     });
   },
   async find() {
-    return await strapi.query("plugin::strapi-plugin-sso.roles").findMany();
+    return await strapi.query("plugin::webunal-login.roles").findMany();
   },
   async update(roles) {
-    const query = strapi.query("plugin::strapi-plugin-sso.roles");
+    const query = strapi.query("plugin::webunal-login.roles");
     await Promise.all(
       roles.map((role) => {
         return query

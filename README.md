@@ -2,117 +2,90 @@
  <img src="https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/strapi-plugin-sso.png?raw=true" width="180"/>
 </div>
 
-# Strapi plugin strapi-plugin-sso
+# Strapi Plugin: webunal-login
 
-This plugin can provide single sign-on.
+Este plugin es un fork del plugin original desarrollado por [yasudacloud](https://github.com/yasudacloud/strapi-plugin-sso). Está adaptado para la Universidad Nacional y desarrollado por el Lab101. Este plugin permite el inicio de sesión único (SSO) a través de Google y solo permite el acceso a usuarios con la extensión de correo `@unal.edu.co`.
 
-You will be able to log in to the administration screen using one of the following providers: 
-- Google 
-- Cognito
-- Azure
-- OIDC
+## Instalación
 
-Currently supports Cognito user pool, Google accounts and OIDC.
+Para instalar el plugin, debes clonar este repositorio en la carpeta de plugins de tu proyecto Strapi y renombrarlo a `webunal-login`:
 
-Please read the [documents](#user-content-documentationenglish) for some precautions.
-
-**This plugin is developed by one engineer.**
-**If possible, consider using the Gold Plan features.**
-
-# Easy to install
 ```shell
-yarn add strapi-plugin-sso
-```
-or
-```shell
-npm i strapi-plugin-sso
+git clone git@github.com:NivekTakedown/strapi-plugin-sso.git ./src/plugins/webunal-login
 ```
 
-# Requirements
-- Strapi Version4
-- **strapi-plugin-sso**
-- Google Account or AWS Cognito UserPool or a OIDC provider
+## Configuración
 
-# Example Configuration
-```javascript
-// config/plugins.js
-module.exports = ({env}) => ({
-  'strapi-plugin-sso': {
+En el archivo `config/plugins.js` de tu proyecto Strapi, agrega la siguiente configuración:
+
+```js
+module.exports = ({ env }) => ({
+  "strapi-webunal-audit-logs": {
     enabled: true,
+  },
+  "strapi-specific-searcher": {
+    enabled: true,
+    resolve: "./src/plugins/strapi-specific-searcher",
     config: {
-      // Either sets token to session storage if false or local storage if true
+      elasticHost: env("ELASTIC_HOST", "http://localhost:9200"),
+      indexScheduleHour: env("INDEX_SCHEDULE_HOUR", "0"),
+      indexScheduleMinute: env("INDEX_SCHEDULE_MINUTE", "0"),
+      indexScheduleRepeat: env("INDEX_SCHEDULE_REPEAT", "daily"),
+      elasticUsername: env("ELASTIC_USERNAME", "elastic"),
+      elasticPassword: env("ELASTIC_PASSWORD", "changeme"),
+      elasticIndexAliasSpecific: env("ELASTIC_INDEX_ALIAS_SPECIFIC", "specific_alias"),
+      elasticIndexAliasGeneral: env("ELASTIC_INDEX_ALIAS_GENERAL", "general_alias"),
+      toIndexSinglesCollection: env.array("TO_INDEX_SINGLES_COLLECTION", []),
+    },
+  },
+  "webunal-login": {
+    enabled: true,
+    resolve: "./src/plugins/webunal-login",
+    config: {
       REMEMBER_ME: false,
-      // Google
-      GOOGLE_OAUTH_CLIENT_ID: '[Client ID created in GCP]',
-      GOOGLE_OAUTH_CLIENT_SECRET: '[Client Secret created in GCP]',
-      GOOGLE_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/google/callback', // URI after successful login
-      GOOGLE_ALIAS: '', // Gmail Aliases
-      GOOGLE_GSUITE_HD: '', // G Suite Primary Domain
-      
-      // Cognito
-      COGNITO_OAUTH_CLIENT_ID: '[Client ID created in AWS Cognito]',
-      COGNITO_OAUTH_CLIENT_SECRET: '[Client Secret created in AWS Cognito]',
-      COGNITO_OAUTH_DOMAIN: '[OAuth Domain created in AWS Cognito]',
-      COGNITO_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/cognito/callback', //  // URI after successful login
-      COGNITO_OAUTH_REGION: 'ap-northeast-1', // AWS Cognito Region 
-
-      // AzureAD
-      AZUREAD_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/azuread/callback',
-      AZUREAD_TENANT_ID: '[Tenant ID created in AzureAD]',
-      AZUREAD_OAUTH_CLIENT_ID: '[Client ID created in AzureAD]', // [Application (client) ID]
-      AZUREAD_OAUTH_CLIENT_SECRET: '[Client Secret created in AzureAD]',
-      AZUREAD_SCOPE: 'user.read', // https://learn.microsoft.com/en-us/graph/permissions-reference
-
-      // OpenID Connect
-      OIDC_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/oidc/callback', // URI after successful login
-      OIDC_CLIENT_ID: '[Client ID from OpenID Provider]',     
-      OIDC_CLIENT_SECRET: '[Client Secret from OpenID Provider]',
-      
-      OIDC_SCOPES: 'openid profile email', // https://oauth.net/2/scope/
-      // API Endpoints required for OIDC
-      OIDC_AUTHORIZATION_ENDPOINT: '[API Endpoint]', 
-      OIDC_TOKEN_ENDPOINT: '[API Endpoint]',
-      OIDC_USER_INFO_ENDPOINT: '[API Endpoint]',
-      OIDC_USER_INFO_ENDPOINT_WITH_AUTH_HEADER: false,
-      OIDC_GRANT_TYPE: 'authorization_code', // https://oauth.net/2/grant-types/
-      // customizable username arguments
-      OIDC_FAMILY_NAME_FIELD: 'family_name',
-      OIDC_GIVEN_NAME_FIELD: 'given_name',
-    }
-  }
-})
+      GOOGLE_OAUTH_CLIENT_ID: "your-google-oauth-client-id",
+      GOOGLE_OAUTH_CLIENT_SECRET: "your-google-oauth-client-secret",
+      GOOGLE_OAUTH_REDIRECT_URI: "http://localhost:1337/webunal-login/google/callback",
+      GOOGLE_ALIAS: "", // Opcional: Alias de Gmail
+      GOOGLE_GSUITE_HD: "unal.edu.co", // Dominio principal de G Suite
+      DOMAIN_NAME: "http://localhost:1337",
+    },
+  },
+});
 ```
 
-# Support
-- ✅ NodeJS >=16.0.0 <21.0.0
-- Strapi 4.1.7 or higher
+Después de agregar la configuración, instala las dependencias necesarias:
 
-# Documentation(English)
+```shell
+npm install
+```
 
-[Google Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/google/setup.md)
+## Uso
 
-[Google Single Sign On Specifications](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/google/admin.md)
+Para iniciar sesión con Google, debes ir a la siguiente URL:
 
-[Cognito Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/cognito/setup.md)
+```
+http://localhost:1337/webunal-login/google
+```
 
-[AzureAD Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/azuread/setup.md)
+## Requisitos
 
-[OIDC Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/oidc/setup.md)
+- NodeJS >=16.0.0 <21.0.0
+- Strapi 4.1.7 o superior
 
-# Documentation(Japanese)
-[Description](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/README.md)
+## Documentación
 
-[Google Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/setup.md)
+### Documentación en Inglés
 
-[Google Single Sign-On Specifications](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/admin.md)
+- [Google Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/google/setup.md)
+- [Google Single Sign On Specifications](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/google/admin.md)
 
-[Cognito Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/cognito/setup.md)
+### Documentación en Japonés
 
-[Cognito Single Sign-On Specifications](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/cognito/admin.md)
+- [Descripción](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/README.md)
+- [Google Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/setup.md)
+- [Google Single Sign-On Specifications](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/admin.md)
 
-TODO AzureAD Single Sign On Setup
+## Demo
 
-TODO OIDC Single Sign On Setup
-
-# Demo
 ![CognitoDemo](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/demo.gif?raw=true "DemoMovie")

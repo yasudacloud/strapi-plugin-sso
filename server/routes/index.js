@@ -1,7 +1,7 @@
 module.exports = [
   {
     method: "GET",
-    path: "/api/connect/google",
+    path: "/google",
     handler: "google.googleSignIn",
     config: {
       auth: false,
@@ -9,7 +9,7 @@ module.exports = [
   },
   {
     method: "GET",
-    path: "/api/connect/google/callback",
+    path: "/google/callback",
     handler: "google.googleSignInCallback",
     config: {
       auth: false,

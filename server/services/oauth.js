@@ -6,7 +6,9 @@ module.exports = ({ strapi }) => ({
     // If the email address contains uppercase letters, convert it to lowercase and retrieve it from the DB. If not, register a new email address with a lower-case email address.
     const userService = strapi.service("admin::user");
     if (/[A-Z]/.test(email)) {
-      const dbUser = await userService.findOneByEmail(email.toLocaleLowerCase());
+      const dbUser = await userService.findOneByEmail(
+        email.toLocaleLowerCase()
+      );
       if (dbUser) {
         return dbUser;
       }
@@ -47,23 +49,30 @@ module.exports = ({ strapi }) => ({
     return `${origin}+${alias}${domain}`;
   },
   localeFindByHeader(headers) {
-    if (headers["accept-language"] && headers["accept-language"].includes("ja")) {
+    if (
+      headers["accept-language"] &&
+      headers["accept-language"].includes("ja")
+    ) {
       return "ja";
     } else {
       return "en";
     }
   },
   async triggerWebHook(user) {
-    let ENTRY_CREATE
+    let ENTRY_CREATE;
     if (strapi.webhookStore && strapi.webhookStore.allowedEvents) {
-      ENTRY_CREATE = strapi.webhookStore.allowedEvents.get('ENTRY_CREATE');
+      ENTRY_CREATE = strapi.webhookStore.allowedEvents.get("ENTRY_CREATE");
     } else {
       // deprecated
       ENTRY_CREATE = strapiUtils.webhook.webhookEvents.ENTRY_CREATE;
     }
 
     const modelDef = strapi.getModel("admin::user");
-    const sanitizedEntity = await strapiUtils.sanitize.sanitizers.defaultSanitizeOutput(modelDef, user);
+    const sanitizedEntity =
+      await strapiUtils.sanitize.sanitizers.defaultSanitizeOutput(
+        modelDef,
+        user
+      );
     strapi.eventHub.emit(ENTRY_CREATE, {
       model: modelDef.modelName,
       entry: sanitizedEntity,
@@ -73,13 +82,13 @@ module.exports = ({ strapi }) => ({
     delete user["password"];
     strapi.eventHub.emit("admin.auth.success", {
       user,
-      provider: "strapi-plugin-sso",
+      provider: "webunal-login",
     });
   },
   // Sign In Success
   renderSignUpSuccess(jwtToken, user, nonce) {
     // get REMEMBER_ME from config
-    const config = strapi.config.get("plugin.strapi-plugin-sso");
+    const config = strapi.config.get("plugin.webunal-login");
     const REMEMBER_ME = config["REMEMBER_ME"];
 
     let storage = "sessionStorage";

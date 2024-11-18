@@ -1,7 +1,7 @@
 'use strict';
 
 async function find(ctx) {
-  const roleService = strapi.plugin('strapi-plugin-sso').service('role')
+  const roleService = strapi.plugin('webunal-login').service('role')
   const roles = await roleService.find()
   const ssoConstants = roleService.ssoRoles()
   for (const sso of ssoConstants) {
@@ -17,7 +17,7 @@ async function find(ctx) {
 async function update(ctx) {
   try {
     const {roles} = ctx.request.body
-    const roleService = strapi.plugin('strapi-plugin-sso').service('role')
+    const roleService = strapi.plugin('webunal-login').service('role')
     await roleService.update(roles)
     ctx.send({}, 204)
   } catch (e) {

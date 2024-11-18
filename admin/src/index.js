@@ -18,7 +18,7 @@ export default {
       Component: async () => {
         return await import('./pages/App');
       },
-      permissions: [{ action: 'plugin::strapi-plugin-sso.read', subject: null }]
+      permissions: [{ action: 'plugin::webunal-login.read', subject: null }]
     });
     app.registerPlugin({
       id: pluginId,
