@@ -27,6 +27,7 @@ const OAUTH_SCOPE =
   "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
 
   async function renderLoginPage(ctx) {
+    //Cambiar por la página real, redirigir con el botón a  /webunal-login/google
     ctx.body = `
       <!DOCTYPE html>
       <html>
