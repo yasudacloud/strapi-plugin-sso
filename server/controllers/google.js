@@ -26,6 +26,23 @@ const OAUTH_RESPONSE_TYPE = "code";
 const OAUTH_SCOPE =
   "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
 
+  async function renderLoginPage(ctx) {
+    //Cambiar por la página real, redirigir con el botón a  /webunal-login/google.
+    ctx.body = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Login Page</title>
+        </head>
+        <body>
+          <h1>Iniciar sesión</h1>
+          <!-- Usamos un enlace para la redirección -->
+          <a href="/webunal-login/google" id="login-link">Iniciar sesión con Google</a>
+        </body>
+      </html>
+    `;
+  }
+
 /**
  * Redirect to Google
  * @param ctx
@@ -137,6 +154,7 @@ async function googleSignInCallback(ctx) {
 }
 
 module.exports = {
+  renderLoginPage,
   googleSignIn,
   googleSignInCallback,
 };

@@ -1,8 +1,16 @@
 module.exports = [
   {
     method: "GET",
+    path: "/login",
+    handler: "google.renderLoginPage", // Nuevo controlador para la interfaz
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: "GET",
     path: "/google",
-    handler: "google.googleSignIn",
+    handler: "google.googleSignIn", // Mantiene la lógica de redirección a Google
     config: {
       auth: false,
     },
