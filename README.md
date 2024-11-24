@@ -46,67 +46,96 @@ Para implementar la redirección automática al login y proteger las rutas, sigu
 1. Crea el archivo de middleware en `src/middlewares/auth-check.js`:
 
 ```javascript
-'use strict';
+"use strict";
 
 module.exports = (config, { strapi }) => {
-  const getLoginUrl = () => '/webunal-login/login';
+  // Rutas que necesitan ser redirigidas a nuestro login personalizado
+  const authRoutes = ["/admin/auth/login"];
+
+  // Rutas que deben ser excluidas de la redirección
+  const excludedRoutes = [
+    "/webunal-login/login",
+    "/webunal-login/google",
+    "/webunal-login/google/callback",
+    "/api",
+    "/api/auth",
+    "/api/connect",
+  ];
 
   return async (ctx, next) => {
-    // Rutas que siempre deben redirigir al login del plugin
-    const redirectPaths = ['/', '/admin'];
-    
-    // Rutas públicas
-    const publicPaths = [
-      '/webunal-login/login',
-      '/webunal-login/google',
-      '/webunal-login/google/callback',
-      '/api/auth/*',
-      '/api/connect/*',
-      '/uploads/*'
-    ];
+    // Guardar el método original de redirección
+    const originalRedirect = ctx.redirect;
 
-    // Redirección automática
-    if (redirectPaths.includes(ctx.path) || 
-        (ctx.path === '/admin' && ctx.path.startsWith('/admin/'))) {
-      return ctx.redirect(getLoginUrl());
-    }
-
-    // Verificar rutas públicas
-    const isPublicPath = (path) => {
-      return publicPaths.some(publicPath => {
-        if (publicPath.endsWith('*')) {
-          return path.startsWith(publicPath.slice(0, -1));
-        }
-        return path === publicPath;
-      });
+    // Sobrescribir el método de redirección
+    ctx.redirect = function (url) {
+      // Si Strapi intenta redirigir a /admin/auth/login, redirigimos a nuestro login
+      if (url === "/admin/auth/login") {
+        return originalRedirect.call(this, "/webunal-login/login");
+      }
+      // Para otras redirecciones, usar el comportamiento normal
+      return originalRedirect.apply(this, arguments);
     };
 
-    if (isPublicPath(ctx.path)) {
-      return await next();
+    // Verificar si la ruta actual está en las rutas excluidas
+    const isExcludedRoute = excludedRoutes.some((route) =>
+      ctx.path.startsWith(route)
+    );
+
+    if (isExcludedRoute) {
+      return next();
     }
 
-    // Verificación de token
-    const token = 
-      ctx.cookies.get('jwtToken') || 
-      ctx.request.header.authorization?.replace('Bearer ', '') ||
-      ctx.query.token;
+    // Verificar si la ruta actual necesita redirección
+    const needsRedirect =
+      authRoutes.includes(ctx.path) || ctx.path.startsWith("/admin/auth/");
 
-    if (!token) {
-      return ctx.path.startsWith('/api/')
-        ? ctx.unauthorized('Authentication required')
-        : ctx.redirect(getLoginUrl());
+    if (needsRedirect) {
+      try {
+        // Obtener el token de las diferentes fuentes posibles
+        const token =
+          ctx.cookies.get("jwtToken")?.replace(/^"|"$/g, "") ||
+          ctx.request.header.authorization?.replace("Bearer ", "") ||
+          ctx.query.token;
+
+        if (!token) {
+          return ctx.redirect("/webunal-login/login");
+        }
+
+        try {
+          // Validar el token
+          const isValid = await strapi.admin.services.token.validate(token);
+          if (isValid) {
+            // Si el token es válido y estamos en una ruta de login,
+            // redirigir al panel de administración
+            if (ctx.path === "/admin/auth/login" || ctx.path === "/login") {
+              return ctx.redirect("/admin");
+            }
+            // Para otras rutas con token válido, continuar normalmente
+            return next();
+          }
+        } catch (err) {
+          // Si el token no es válido
+          return ctx.redirect("/webunal-login/login");
+        }
+      } catch (err) {
+        console.error("Auth middleware error:", err);
+        return ctx.redirect("/webunal-login/login");
+      }
     }
 
-    try {
-      ctx.state.user = await strapi.admin.services.token.validate(token);
-      await next();
-    } catch (err) {
-      return ctx.path.startsWith('/api/')
-        ? ctx.unauthorized('Invalid or expired token')
-        : ctx.redirect(getLoginUrl());
+    await next();
+
+    // Verificar si la respuesta es una redirección a /admin/auth/login
+    if (
+      ctx.status === 302 &&
+      ctx.response.header.location === "/admin/auth/login"
+    ) {
+      ctx.redirect("/webunal-login/login");
     }
   };
 };
+
+
 ```
 
 2. Configura el middleware en `config/middlewares.js`:
@@ -131,28 +160,9 @@ module.exports = [
 ];
 ```
 
-3. (Opcional) Añade configuración específica en `config/middlewares/auth-check.js`:
-
-```javascript
-module.exports = {
-  settings: {
-    redirectPaths: ['/', '/admin'],
-    loginUrl: '/webunal-login/login',
-    publicPaths: [
-      '/webunal-login/login',
-      '/webunal-login/google',
-      '/webunal-login/google/callback',
-      '/api/auth/*',
-      '/api/connect/*',
-      '/uploads/*'
-    ]
-  }
-};
-```
-
 ### Funcionalidades del Middleware
 
-- Redirección automática de la raíz (`/`) y panel de administración (`/admin`) al login
+- Redirección automática del panel de inicio de sesion (`/admin/auth/login`) al login
 - Protección de rutas no públicas
 - Verificación de tokens JWT
 - Manejo diferenciado de solicitudes API y web
