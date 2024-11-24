@@ -32,12 +32,99 @@ async function renderLoginPage(ctx) {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Login Page</title>
+          <title>Login UNAL</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <!-- Importar estilos de la OMD -->
+          <link rel="stylesheet" href="https://unal.edu.co/fileadmin/templates/css/unal.css">
+          <style>
+            .login-container {
+              max-width: 1270px;
+              margin: 0 auto;
+              padding: 1.5rem;
+              background-color: var(--TERTIARY_SKY_30);
+            }
+
+            .card {
+              background: white;
+              border-radius: 8px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              padding: 40px;
+              margin: 20px auto;
+              max-width: 500px;
+            }
+
+            .btn-google {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+              width: 70%;
+              margin: 20px auto;
+              padding: 12px 24px;
+              border: none;
+              border-radius: 4px;
+              background-color: #4285f4;
+              color: white;
+              font-weight: 500;
+              cursor: pointer;
+              text-decoration: none;
+            }
+
+            .btn-google:hover {
+              background-color: #357abd;
+            }
+
+            .separator {
+              border-top: 1px solid #e0e0e0;
+              margin: 20px 0;
+            }
+
+            .text-center {
+              text-align: center;
+            }
+
+            .title {
+              color: var(--PRIMARY_B_70);
+              font-size: 24px;
+              margin-bottom: 16px;
+            }
+
+            .description {
+              color: var(--NEUTRAL_70);
+              margin-bottom: 24px;
+            }
+          </style>
         </head>
         <body>
-          <h1>Iniciar sesión</h1>
-          <!-- Usamos un enlace para la redirección -->
-          <a href="/webunal-login/google" id="login-link">Iniciar sesión con Google</a>
+          <main class="login-container">
+            <div class="card">
+              <h4 class="title">Iniciar sesión</h4>
+              <p class="description">
+                Accede con tu cuenta institucional de la Universidad Nacional de Colombia
+              </p>
+
+              <a href="/webunal-login/google" class="btn-google" id="login-link">
+                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#FFFFFF"/>
+                  <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#FFFFFF"/>
+                  <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FFFFFF"/>
+                  <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#FFFFFF"/>
+                </svg>
+                ACCEDER CON GOOGLE
+              </a>
+
+              <div class="separator"></div>
+
+              <div class="text-center">
+                <p><strong>¿Problemas para acceder?</strong></p>
+                <p>Si tienes problemas para acceder, por favor contacta al administrador del sistema</p>
+              </div>
+            </div>
+          </main>
+
+          <!-- Scripts de la OMD -->
+          <script src="https://unal.edu.co/fileadmin/templates/js/unal.js"></script>
         </body>
       </html>
     `;
