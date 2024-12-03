@@ -46,55 +46,115 @@ Para implementar la redirección automática al login y proteger las rutas, sigu
 1. Crea el archivo de middleware en `src/middlewares/auth-check.js`:
 
 ```javascript
+"use strict";
+
 module.exports = (config, { strapi }) => {
   return async (ctx, next) => {
-    // Verificar si la ruta es /admin
+    console.log("Middleware auth-check ejecutándose para la ruta:", ctx.path);
+
+    // === Manejo de /admin/logout ===
+    if (ctx.path === "/admin/logout") {
+      console.log(
+        "Ruta /admin/logout detectada, eliminando la cookie del token..."
+      );
+
+      // Eliminar la cookie 'token' estableciendo su valor a null y expirando inmediatamente
+      ctx.cookies.set("token", null, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Asegúrate de usar HTTPS en producción
+        sameSite: "lax",
+        maxAge: 0, // Expira la cookie inmediatamente
+      });
+
+      console.log(
+        "Cookie del token eliminada, redirigiendo a /webunal-login/login"
+      );
+
+      // Redirigir al usuario a la página de login después del logout
+      return ctx.redirect("/webunal-login/login");
+    }
+    // === Fin del Manejo de /admin/logout ===
+
+    // === Manejo de /admin/auth/login ===
+    if (ctx.path === "/admin/auth/login") {
+      console.log(
+        "Ruta /admin/auth/login detectada, redirigiendo a /webunal-login/login"
+      );
+
+      // Redirigir al usuario a la página de login personalizado
+      return ctx.redirect("/webunal-login/login");
+    }
+    // === Fin del Manejo de /admin/auth/login ===
+
+    // === Verificación de Rutas que Comienzan con /admin ===
     if (ctx.path.startsWith("/admin")) {
-      const jwt = ctx.cookies.get("jwtToken");
+      console.log("Ruta /admin detectada, verificando autenticación...");
+
+      // Obtener el token JWT desde la cookie
+      const jwt = ctx.cookies.get("token");
+      console.log("Token JWT obtenido de la cookie:", jwt);
+
       if (!jwt) {
-        // No hay token, redirigir a la página de login
+        console.log(
+          "No se encontró token JWT en la cookie, redirigiendo a /webunal-login/login"
+        );
         return ctx.redirect("/webunal-login/login");
       }
 
       try {
-        // Verificar el token
-        const tokenService = strapi.service("admin::token");
+        // Obtener el servicio de tokens de Strapi Admin
+        const tokenService = strapi.admin.services.token;
+
+        // Decodificar el token JWT
         const decodedToken = await tokenService.decodeJwtToken(jwt);
 
-        // Verificar que el token sea válido y que el ID del usuario esté presente
+        console.log("Token JWT decodificado:", decodedToken);
+
+        // Verificar validez del token y existencia del ID
         if (
           !decodedToken ||
-          !decodedToken.isValid ||
           !decodedToken.payload ||
-          !decodedToken.payload.id
+          typeof decodedToken.payload.id !== "number"
         ) {
-          // Token inválido, redirigir a la página de login
+          console.log(
+            "Token JWT inválido o no contiene un ID de usuario válido, redirigiendo a /webunal-login/login"
+          );
           return ctx.redirect("/webunal-login/login");
         }
+
+        const userId = decodedToken.payload.id;
 
         // Obtener el usuario asociado al token
-        const adminUser = await strapi
-          .service("admin::user")
-          .findOne(decodedToken.payload.id);
+        const adminUser = await strapi.db.query("admin::user").findOne({
+          where: { id: userId },
+        });
+
         if (!adminUser) {
-          // Usuario no encontrado, redirigir a la página de login
+          console.log(
+            "Usuario no encontrado, redirigiendo a /webunal-login/login"
+          );
           return ctx.redirect("/webunal-login/login");
         }
 
-        // Autenticación exitosa, continuar con la solicitud
+        // Verificar si el usuario está activo
+        if (!adminUser.isActive) {
+          console.log("Usuario inactivo, redirigiendo a /webunal-login/login");
+          return ctx.redirect("/webunal-login/login");
+        }
+
+        // Establecer el usuario en el contexto de la solicitud
         ctx.state.user = adminUser;
+        console.log("Autenticación exitosa, continuando con la solicitud...");
       } catch (error) {
-        // Error al verificar el token, redirigir a la página de login
+        console.error("Error al verificar el token:", error);
         return ctx.redirect("/webunal-login/login");
       }
+    } else {
+      console.log("Ruta no es /admin, continuando con la solicitud...");
     }
-
     await next();
   };
 };
-
-
-
 ```
 
 2. Configura el middleware en `config/middlewares.js`:
