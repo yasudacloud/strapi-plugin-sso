@@ -46,94 +46,53 @@ Para implementar la redirección automática al login y proteger las rutas, sigu
 1. Crea el archivo de middleware en `src/middlewares/auth-check.js`:
 
 ```javascript
-"use strict";
-
 module.exports = (config, { strapi }) => {
-  // Rutas que necesitan ser redirigidas a nuestro login personalizado
-  const authRoutes = ["/admin/auth/login"];
-
-  // Rutas que deben ser excluidas de la redirección
-  const excludedRoutes = [
-    "/webunal-login/login",
-    "/webunal-login/google",
-    "/webunal-login/google/callback",
-    "/api",
-    "/api/auth",
-    "/api/connect",
-  ];
-
   return async (ctx, next) => {
-    // Guardar el método original de redirección
-    const originalRedirect = ctx.redirect;
-
-    // Sobrescribir el método de redirección
-    ctx.redirect = function (url) {
-      // Si Strapi intenta redirigir a /admin/auth/login, redirigimos a nuestro login
-      if (url === "/admin/auth/login") {
-        return originalRedirect.call(this, "/webunal-login/login");
+    // Verificar si la ruta es /admin
+    if (ctx.path.startsWith("/admin")) {
+      const jwt = ctx.cookies.get("jwtToken");
+      if (!jwt) {
+        // No hay token, redirigir a la página de login
+        return ctx.redirect("/webunal-login/login");
       }
-      // Para otras redirecciones, usar el comportamiento normal
-      return originalRedirect.apply(this, arguments);
-    };
 
-    // Verificar si la ruta actual está en las rutas excluidas
-    const isExcludedRoute = excludedRoutes.some((route) =>
-      ctx.path.startsWith(route)
-    );
-
-    if (isExcludedRoute) {
-      return next();
-    }
-
-    // Verificar si la ruta actual necesita redirección
-    const needsRedirect =
-      authRoutes.includes(ctx.path) || ctx.path.startsWith("/admin/auth/");
-
-    if (needsRedirect) {
       try {
-        // Obtener el token de las diferentes fuentes posibles
-        const token =
-          ctx.cookies.get("jwtToken")?.replace(/^"|"$/g, "") ||
-          ctx.request.header.authorization?.replace("Bearer ", "") ||
-          ctx.query.token;
+        // Verificar el token
+        const tokenService = strapi.service("admin::token");
+        const decodedToken = await tokenService.decodeJwtToken(jwt);
 
-        if (!token) {
+        // Verificar que el token sea válido y que el ID del usuario esté presente
+        if (
+          !decodedToken ||
+          !decodedToken.isValid ||
+          !decodedToken.payload ||
+          !decodedToken.payload.id
+        ) {
+          // Token inválido, redirigir a la página de login
           return ctx.redirect("/webunal-login/login");
         }
 
-        try {
-          // Validar el token
-          const isValid = await strapi.admin.services.token.validate(token);
-          if (isValid) {
-            // Si el token es válido y estamos en una ruta de login,
-            // redirigir al panel de administración
-            if (ctx.path === "/admin/auth/login" || ctx.path === "/login") {
-              return ctx.redirect("/admin");
-            }
-            // Para otras rutas con token válido, continuar normalmente
-            return next();
-          }
-        } catch (err) {
-          // Si el token no es válido
+        // Obtener el usuario asociado al token
+        const adminUser = await strapi
+          .service("admin::user")
+          .findOne(decodedToken.payload.id);
+        if (!adminUser) {
+          // Usuario no encontrado, redirigir a la página de login
           return ctx.redirect("/webunal-login/login");
         }
-      } catch (err) {
-        console.error("Auth middleware error:", err);
+
+        // Autenticación exitosa, continuar con la solicitud
+        ctx.state.user = adminUser;
+      } catch (error) {
+        // Error al verificar el token, redirigir a la página de login
         return ctx.redirect("/webunal-login/login");
       }
     }
 
     await next();
-
-    // Verificar si la respuesta es una redirección a /admin/auth/login
-    if (
-      ctx.status === 302 &&
-      ctx.response.header.location === "/admin/auth/login"
-    ) {
-      ctx.redirect("/webunal-login/login");
-    }
   };
 };
+
 
 
 ```
@@ -142,21 +101,23 @@ module.exports = (config, { strapi }) => {
 
 ```javascript
 module.exports = [
+  "strapi::errors",
+  "strapi::security",
+  "strapi::cors",
+  "strapi::poweredBy",
+  "strapi::query",
+  "strapi::body",
+  "strapi::session",
+  "strapi::favicon",
+  "strapi::public",
+  //, otros middlewares...
   {
-    name: 'global::auth-check',
+    name: "global::auth-check",
+
     config: {
       enabled: true,
     },
   },
-  'strapi::errors',
-  'strapi::security',
-  'strapi::cors',
-  'strapi::poweredBy',
-  'strapi::query',
-  'strapi::body',
-  'strapi::session',
-  'strapi::favicon',
-  'strapi::public',
 ];
 ```
 
