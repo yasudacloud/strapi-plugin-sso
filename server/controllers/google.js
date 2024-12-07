@@ -36,17 +36,22 @@ async function renderLoginPage(ctx) {
   );
 
   ctx.body = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Login Page</title>
-        </head>
-        <body>
-          <div id="app">${reactComponent}</div>
-        </body>
-      </html>
-    `;
-}
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>Login Page</title>
+      <style>
+        body {
+          margin: 0;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="app">${reactComponent}</div>
+    </body>
+  </html>
+`;
+};
 
 /**
  * Redirect to Google

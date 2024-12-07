@@ -1,5 +1,5 @@
 // LoginPage.jsx
-const React = require('react');
+const React = require("react");
 
 // function LoginPage() {
 //   return React.createElement(
@@ -22,11 +22,17 @@ function LoginPage({
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      height: '100%',
+      height: '100vh', // Altura de toda la ventana
+      width: '100vw',  // Ancho de toda la ventana
+      margin: 0,       // Elimina márgenes
+      padding: 0,      // Elimina padding
+      backgroundImage: 'url(/background.png)', // Imagen de fondo
+      backgroundSize: 'cover', // Ajusta la imagen para cubrir todo el fondo
+      backgroundRepeat: 'no-repeat', // Evita que se repita
+      backgroundPosition: 'center', // Centra la imagen
     },
     loginCard: {
       width: '452px',
-      height: '100%',
       borderRadius: '20px 40px 20px 40px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       display: 'flex',
@@ -87,13 +93,6 @@ function LoginPage({
       cursor: 'pointer',
       height: '45px',
     },
-    googleLoginButtonHover: {
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 -4px 8px rgba(0, 0, 0, 0.15), 4px 0 8px rgba(0, 0, 0, 0.15), -4px 0 8px rgba(0, 0, 0, 0.15)',
-      borderColor: 'rgb(55, 53, 53)',
-    },
-    googleLoginButtonActive: {
-      backgroundColor: 'rgb(242, 253, 221)',
-    },
     googleIcon: {
       marginRight: '10px',
     },
@@ -141,7 +140,7 @@ function LoginPage({
         React.createElement(
           'div',
           { style: styles.loginImageSection },
-          React.createElement('img', { src: '/image.png', alt: 'Login background', style: styles.loginImage }) 
+          React.createElement('img', { src: '/image.png', alt: 'Login background', style: styles.loginImage })
         ),
         React.createElement(
           'div',
@@ -159,7 +158,7 @@ function LoginPage({
                 href: '/webunal-login/google',
               },
               React.createElement('img', {
-                src: '/google.png', 
+                src: '/google.png',
                 style: styles.googleIcon,
                 width: 24,
                 height: 24,
@@ -182,8 +181,6 @@ function LoginPage({
 }
 
 module.exports.default = LoginPage;
-
-
 
 // function LoginPage() {
 //   return (
