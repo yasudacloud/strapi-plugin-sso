@@ -141,7 +141,7 @@ function LoginPage({
         React.createElement(
           'div',
           { style: styles.loginImageSection },
-          React.createElement('img', { src: '/image.png', alt: 'Login background', style: styles.loginImage }) // Ruta relativa a la misma carpeta
+          React.createElement('img', { src: '/image.png', alt: 'Login background', style: styles.loginImage }) 
         ),
         React.createElement(
           'div',
@@ -159,7 +159,7 @@ function LoginPage({
                 href: '/webunal-login/google',
               },
               React.createElement('img', {
-                src: '/google.png', // Ruta relativa a la misma carpeta
+                src: '/google.png', 
                 style: styles.googleIcon,
                 width: 24,
                 height: 24,
