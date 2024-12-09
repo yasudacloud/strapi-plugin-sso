@@ -1,5 +1,8 @@
 const axios = require("axios");
 const { v4 } = require("uuid");
+const React = require("react");
+const ReactDOMServer = require("react-dom/server");
+const LoginPage = require("../../admin/src/components/LoginPage.js").default;
 
 const configValidation = () => {
   const config = strapi.config.get("plugin.webunal-login");
@@ -26,22 +29,29 @@ const OAUTH_RESPONSE_TYPE = "code";
 const OAUTH_SCOPE =
   "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
 
-  async function renderLoginPage(ctx) {
-    //Cambiar por la página real, redirigir con el botón a  /webunal-login/google.
-    ctx.body = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Login Page</title>
-        </head>
-        <body>
-          <h1>Iniciar sesión</h1>
-          <!-- Usamos un enlace para la redirección -->
-          <a href="/webunal-login/google" id="login-link">Iniciar sesión con Google</a>
-        </body>
-      </html>
-    `;
-  }
+async function renderLoginPage(ctx) {
+  // Renderiza el componente React a HTML
+  const reactComponent = ReactDOMServer.renderToString(
+    React.createElement(LoginPage)
+  );
+
+  ctx.body = `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>Login Page</title>
+      <style>
+        body {
+          margin: 0;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="app">${reactComponent}</div>
+    </body>
+  </html>
+`;
+};
 
 /**
  * Redirect to Google
