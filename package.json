@@ -25,12 +25,12 @@
     "Cognito"
   ],
   "peerDependencies": {
-    "@strapi/strapi": "^5.0.0"
+    "@strapi/strapi": "^5.8.0"
   },
   "dependencies": {
     "@strapi/design-system": "^2.0.0-rc.11",
     "@strapi/icons": "^2.0.0-rc.11",
-    "@strapi/utils": "^5.0.0",
+    "@strapi/utils": "^5.8.0",
     "axios": "^1.7.5",
     "generate-password": "^1.7.1",
     "pkce-challenge": "^3.1.0",
