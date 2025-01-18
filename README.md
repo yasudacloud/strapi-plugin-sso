@@ -22,7 +22,7 @@ Please read the [documents](#user-content-documentationenglish) for some precaut
 | NodeJS          | Strapi | strapi-plugin-sso |
 |-----------------|--------|-------------------|
 | 16.0.0 - 21.0.0 | v4     | 0.\*.\*           |
-| 18.0.0 - 21.0.0 | v5     | 1.\*.\*           |
+| 18.0.0 - 22.0.0 | v5     | 1.\*.\*           |
 
 # Easy to install
 
