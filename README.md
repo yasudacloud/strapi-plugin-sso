@@ -87,6 +87,8 @@ module.exports = ({env}) => ({
       // customizable username arguments
       OIDC_FAMILY_NAME_FIELD: 'family_name',
       OIDC_GIVEN_NAME_FIELD: 'given_name',
+
+      USE_WHITELIST: true // allow authentication only at the specified email address.
     }
   }
 })
@@ -105,6 +107,8 @@ Of the above, the environment variable for the provider you wish to use is all t
 [AzureAD Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/azuread/setup.md)
 
 [OIDC Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/oidc/setup.md)
+
+[whitelist](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/whitelist.md)
 
 # Documentation(Japanese)
 
