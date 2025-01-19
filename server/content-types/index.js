@@ -1,7 +1,7 @@
-'use strict';
+import roles from './sso-role'
+import whitelists from './whitelist'
 
-const roles = require('./sso-role')
-
-module.exports = {
-  roles
-};
+export default {
+  roles,
+  whitelists
+}

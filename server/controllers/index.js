@@ -1,15 +1,15 @@
-"use strict";
+import google from "./google";
+import cognito from "./cognito";
+import azuread from "./azuread";
+import oidc from "./oidc";
+import role from "./role";
+import whitelist from "./whitelist";
 
-const google = require("./google");
-const cognito = require("./cognito");
-const azuread = require("./azuread");
-const oidc = require("./oidc");
-const role = require("./role");
-
-module.exports = {
+export default {
   google,
   cognito,
   azuread,
   oidc,
   role,
+  whitelist
 };

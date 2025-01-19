@@ -1,8 +1,8 @@
-const axios = require("axios");
-const {v4} = require('uuid');
+import axios from 'axios';
+import {randomUUID} from 'crypto';
 
 const configValidation = () => {
-  const config = strapi.config.get('plugin.strapi-plugin-sso')
+  const config = strapi.config.get('plugin::strapi-plugin-sso')
   if (config['GOOGLE_OAUTH_CLIENT_ID'] && config['GOOGLE_OAUTH_CLIENT_SECRET']) {
     return config
   }
@@ -44,6 +44,7 @@ async function googleSignInCallback(ctx) {
   const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
+  const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
@@ -73,6 +74,10 @@ async function googleSignInCallback(ctx) {
     }
 
     const email = config['GOOGLE_ALIAS'] ? oauthService.addGmailAlias(userResponse.data.email, config['GOOGLE_ALIAS']) : userResponse.data.email
+
+    // whitelist check
+    await whitelistService.checkWhitelistForEmail(email)
+
     const dbUser = await userService.findOneByEmail(email)
     let activateUser;
     let jwtToken;
@@ -105,7 +110,7 @@ async function googleSignInCallback(ctx) {
     oauthService.triggerSignInSuccess(activateUser)
 
     // Client-side authentication persistence and redirection
-    const nonce = v4()
+    const nonce = randomUUID()
     const html = oauthService.renderSignUpSuccess(jwtToken, activateUser, nonce)
     ctx.set('Content-Security-Policy', `script-src 'nonce-${nonce}'`)
     ctx.send(html);
@@ -115,7 +120,7 @@ async function googleSignInCallback(ctx) {
   }
 }
 
-module.exports = {
+export default {
   googleSignIn,
   googleSignInCallback
 }

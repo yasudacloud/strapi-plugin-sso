@@ -6,34 +6,43 @@
 
 This plugin can provide single sign-on.
 
-You will be able to log in to the administration screen using one of the following providers: 
-- Google 
+You will be able to log in to the administration screen using one of the following providers:
+
+- Google
 - Cognito
 - Azure
 - OIDC
 
-Currently supports Cognito user pool, Google accounts and OIDC.
-
 Please read the [documents](#user-content-documentationenglish) for some precautions.
 
-**This plugin is developed by one engineer.**
 **If possible, consider using the Gold Plan features.**
 
+# Version
+
+| NodeJS          | Strapi | strapi-plugin-sso |
+|-----------------|--------|-------------------|
+| 16.0.0 - 21.0.0 | v4     | 0.\*.\*           |
+| 18.0.0 - 22.0.0 | v5     | 1.\*.\*           |
+
 # Easy to install
+
 ```shell
 yarn add strapi-plugin-sso
 ```
+
 or
+
 ```shell
 npm i strapi-plugin-sso
 ```
 
 # Requirements
-- Strapi Version4
+
 - **strapi-plugin-sso**
 - Google Account or AWS Cognito UserPool or a OIDC provider
 
 # Example Configuration
+
 ```javascript
 // config/plugins.js
 module.exports = ({env}) => ({
@@ -48,7 +57,7 @@ module.exports = ({env}) => ({
       GOOGLE_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/google/callback', // URI after successful login
       GOOGLE_ALIAS: '', // Gmail Aliases
       GOOGLE_GSUITE_HD: '', // G Suite Primary Domain
-      
+
       // Cognito
       COGNITO_OAUTH_CLIENT_ID: '[Client ID created in AWS Cognito]',
       COGNITO_OAUTH_CLIENT_SECRET: '[Client Secret created in AWS Cognito]',
@@ -65,12 +74,12 @@ module.exports = ({env}) => ({
 
       // OpenID Connect
       OIDC_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/oidc/callback', // URI after successful login
-      OIDC_CLIENT_ID: '[Client ID from OpenID Provider]',     
+      OIDC_CLIENT_ID: '[Client ID from OpenID Provider]',
       OIDC_CLIENT_SECRET: '[Client Secret from OpenID Provider]',
-      
+
       OIDC_SCOPES: 'openid profile email', // https://oauth.net/2/scope/
       // API Endpoints required for OIDC
-      OIDC_AUTHORIZATION_ENDPOINT: '[API Endpoint]', 
+      OIDC_AUTHORIZATION_ENDPOINT: '[API Endpoint]',
       OIDC_TOKEN_ENDPOINT: '[API Endpoint]',
       OIDC_USER_INFO_ENDPOINT: '[API Endpoint]',
       OIDC_USER_INFO_ENDPOINT_WITH_AUTH_HEADER: false,
@@ -78,14 +87,14 @@ module.exports = ({env}) => ({
       // customizable username arguments
       OIDC_FAMILY_NAME_FIELD: 'family_name',
       OIDC_GIVEN_NAME_FIELD: 'given_name',
+
+      USE_WHITELIST: true // allow authentication only at the specified email address.
     }
   }
 })
 ```
 
-# Support
-- ✅ NodeJS >=16.0.0 <21.0.0
-- Strapi 4.1.7 or higher
+Of the above, the environment variable for the provider you wish to use is all that is needed.
 
 # Documentation(English)
 
@@ -99,7 +108,10 @@ module.exports = ({env}) => ({
 
 [OIDC Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/en/oidc/setup.md)
 
+[whitelist](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/whitelist.md)
+
 # Documentation(Japanese)
+
 [Description](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/README.md)
 
 [Google Single Sign On Setup](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/ja/google/setup.md)
@@ -115,4 +127,5 @@ TODO AzureAD Single Sign On Setup
 TODO OIDC Single Sign On Setup
 
 # Demo
+
 ![CognitoDemo](https://github.com/yasudacloud/strapi-plugin-sso/blob/main/docs/demo.gif?raw=true "DemoMovie")

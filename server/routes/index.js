@@ -1,4 +1,4 @@
-module.exports = [
+export default [
   {
     method: 'GET',
     path: '/google',
@@ -73,4 +73,19 @@ module.exports = [
       auth: false,
     },
   },
+  {
+    method: 'GET',
+    path: '/whitelist',
+    handler: 'whitelist.info',
+  },
+  {
+    method: 'POST',
+    path: '/whitelist',
+    handler: 'whitelist.register'
+  },
+  {
+    method: 'DELETE',
+    path: '/whitelist/:id',
+    handler: 'whitelist.removeEmail'
+  }
 ];

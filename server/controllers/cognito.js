@@ -1,9 +1,8 @@
-'use strict';
-const axios = require("axios");
-const {v4} = require('uuid');
+import axios from 'axios';
+import {randomUUID} from 'crypto';
 
 const configValidation = () => {
-  const config = strapi.config.get('plugin.strapi-plugin-sso')
+  const config = strapi.config.get('plugin::strapi-plugin-sso')
   if (config['COGNITO_OAUTH_CLIENT_ID'] && config['COGNITO_OAUTH_CLIENT_SECRET'] && config['COGNITO_OAUTH_DOMAIN']) {
     return config
   }
@@ -41,6 +40,7 @@ async function cognitoSignInCallback(ctx) {
   const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
+  const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
@@ -69,6 +69,9 @@ async function cognitoSignInCallback(ctx) {
     if (userResponse.data.email_verified !== 'true') {
       throw new Error('Your email address has not been verified.')
     }
+
+    // whitelist check
+    await whitelistService.checkWhitelistForEmail(userResponse.data.email)
 
     const dbUser = await userService.findOneByEmail(userResponse.data.email)
     let activateUser;
@@ -99,7 +102,7 @@ async function cognitoSignInCallback(ctx) {
     // Login Event Call
     oauthService.triggerSignInSuccess(activateUser)
 
-    const nonce = v4()
+    const nonce = randomUUID()
     const html = oauthService.renderSignUpSuccess(jwtToken, activateUser, nonce)
     ctx.set('Content-Security-Policy', `script-src 'nonce-${nonce}'`)
     ctx.send(html);
@@ -109,7 +112,7 @@ async function cognitoSignInCallback(ctx) {
   }
 }
 
-module.exports = {
+export default {
   cognitoSignIn,
   cognitoSignInCallback
 }

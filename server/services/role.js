@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = ({strapi}) => ({
+export default ({strapi}) => ({
   SSO_TYPE_GOOGLE: '1',
   SSO_TYPE_COGNITO: '2',
   SSO_TYPE_AZUREAD: "3",

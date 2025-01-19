@@ -1,14 +1,18 @@
 {
   "name": "strapi-plugin-sso",
-  "version": "0.4.5",
+  "version": "1.0.1",
   "description": "Plug-in for single sign-on with Strapi!",
   "strapi": {
     "displayName": "Single Sign On",
     "name": "strapi-plugin-sso",
-    "description": "Version 4 enables single sign-on",
+    "description": "Version 5 enables single sign-on",
     "kind": "plugin"
   },
   "scripts": {
+    "build": "strapi-plugin build",
+    "watch": "strapi-plugin watch",
+    "watch:link": "strapi-plugin watch:link",
+    "verify": "strapi-plugin verify",
     "test": "jest",
     "lint": "eslint"
   },
@@ -21,11 +25,20 @@
     "Cognito"
   ],
   "peerDependencies": {
-    "@strapi/strapi": "^4.0.0"
+    "@strapi/strapi": "^5.8.0"
   },
   "dependencies": {
+    "@strapi/design-system": "^2.0.0-rc.11",
+    "@strapi/icons": "^2.0.0-rc.11",
+    "@strapi/utils": "^5.8.0",
+    "axios": "^1.7.5",
     "generate-password": "^1.7.1",
-    "pkce-challenge": "^3.1.0"
+    "pkce-challenge": "^3.1.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-intl": "^6.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
   },
   "author": {
     "name": "yasudacloud",
@@ -44,21 +57,41 @@
     }
   ],
   "engines": {
-    "node": ">=16.0.0 <21.0.0",
-    "npm": ">=7.0.0"
+    "node": ">=18.0.0 <=22.x.x",
+    "npm": ">=8.6.0"
   },
+  "files": [
+    "dist"
+  ],
   "license": "MIT",
   "devDependencies": {
-    "babel-eslint": "^10.1.0",
+    "@strapi/sdk-plugin": "^5.2.0",
     "eslint": "^9.0.0",
+    "globals": "^15.9.0",
     "jest": "^29.3.1"
   },
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",
       ".tmp",
+      "dist",
       ".cache"
     ],
     "testEnvironment": "node"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./strapi-admin": {
+      "source": "./admin/src/index.js",
+      "import": "./dist/admin/index.mjs",
+      "require": "./dist/admin/index.js",
+      "default": "./dist/admin/index.js"
+    },
+    "./strapi-server": {
+      "source": "./server/index.js",
+      "import": "./dist/server/index.mjs",
+      "require": "./dist/server/index.js",
+      "default": "./dist/server/index.js"
+    }
   }
 }

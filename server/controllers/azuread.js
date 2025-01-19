@@ -1,10 +1,10 @@
-"use strict";
-const axios = require("axios");
-const { v4 } = require("uuid");
-const pkceChallenge = require("pkce-challenge").default;
+import axios from "axios";
+import { randomUUID } from "crypto";
+import pkceChallenge from "pkce-challenge";
+
 
 const configValidation = () => {
-  const config = strapi.config.get("plugin.strapi-plugin-sso");
+  const config = strapi.config.get("plugin::strapi-plugin-sso");
   if (
     config["AZUREAD_OAUTH_CLIENT_ID"] &&
     config["AZUREAD_OAUTH_CLIENT_SECRET"] &&
@@ -51,6 +51,7 @@ async function azureAdSignInCallback(ctx) {
   const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin("strapi-plugin-sso").service("oauth");
   const roleService = strapi.plugin("strapi-plugin-sso").service("role");
+  const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`));
@@ -78,6 +79,9 @@ async function azureAdSignInCallback(ctx) {
         Authorization: `Bearer ${response.data.access_token}`,
       },
     });
+
+    // whitelist check
+    await whitelistService.checkWhitelistForEmail(userResponse.data.email)
 
     const dbUser = await userService.findOneByEmail(userResponse.data.email);
     let activateUser;
@@ -113,7 +117,7 @@ async function azureAdSignInCallback(ctx) {
     // Login Event Call
     oauthService.triggerSignInSuccess(activateUser);
 
-    const nonce = v4();
+    const nonce = randomUUID();
     const html = oauthService.renderSignUpSuccess(
       jwtToken,
       activateUser,
@@ -122,12 +126,12 @@ async function azureAdSignInCallback(ctx) {
     ctx.set("Content-Security-Policy", `script-src 'nonce-${nonce}'`);
     ctx.send(html);
   } catch (e) {
-    console.error(e.response.data);
+    console.error(e);
     ctx.send(oauthService.renderSignUpError(e.message));
   }
 }
 
-module.exports = {
+export default {
   azureAdSignIn,
   azureAdSignInCallback,
 };
