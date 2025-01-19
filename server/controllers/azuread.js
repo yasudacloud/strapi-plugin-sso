@@ -51,6 +51,7 @@ async function azureAdSignInCallback(ctx) {
   const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin("strapi-plugin-sso").service("oauth");
   const roleService = strapi.plugin("strapi-plugin-sso").service("role");
+  const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`));
@@ -78,6 +79,9 @@ async function azureAdSignInCallback(ctx) {
         Authorization: `Bearer ${response.data.access_token}`,
       },
     });
+
+    // whitelist check
+    await whitelistService.checkWhitelistForEmail(userResponse.data.email)
 
     const dbUser = await userService.findOneByEmail(userResponse.data.email);
     let activateUser;
@@ -122,7 +126,7 @@ async function azureAdSignInCallback(ctx) {
     ctx.set("Content-Security-Policy", `script-src 'nonce-${nonce}'`);
     ctx.send(html);
   } catch (e) {
-    console.error(e.response.data);
+    console.error(e);
     ctx.send(oauthService.renderSignUpError(e.message));
   }
 }

@@ -1,64 +1,47 @@
 import React, {memo, useEffect, useState} from 'react';
 import {
-  Alert,
-  Button,
-  Checkbox,
   Box,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Td,
-  Th
+  Tabs,
 } from '@strapi/design-system';
-import { Page, Layouts } from '@strapi/strapi/admin';
+import {Page, Layouts} from '@strapi/strapi/admin';
 import {useIntl} from 'react-intl';
-import { useFetchClient } from '@strapi/strapi/admin';
-import styled from 'styled-components'
+import {useFetchClient} from '@strapi/strapi/admin';
 import getTrad from "../../utils/getTrad";
-
-const ButtonWrapper = styled.div`
-  margin: 10px 0 0 0;
-
-  & button {
-    margin: 0 0 0 auto;
-  }
-`
-const Description = styled.p`
-  font-size: 16px;
-  margin: 20px 0;
-`
-
-const AlertMessage = styled.div`
-  margin-left: -250px;
-  position: fixed;
-  left: 50%;
-  top: 2.875rem;
-  z-index: 10;
-  width: 31.25rem;
-`
+import Role from "../../components/Role";
+import Whitelist from "../../components/Whitelist";
+import {ErrorAlertMessage, SuccessAlertMessage} from "../../components/AlertMessage";
 
 const HomePage = () => {
   const {formatMessage} = useIntl();
+  const [loading, setLoading] = useState(false);
+
+  // Roles
   const [ssoRoles, setSSORoles] = useState([])
   const [roles, setRoles] = useState([])
+
+  // Whitelist
+  const [useWhitelist, setUseWhitelist] = useState(false)
+  const [users, setUsers] = useState([])
+
   const [showSuccess, setSuccess] = useState(false)
   const [showError, setError] = useState(false)
 
-  const { get, put } = useFetchClient();
+  const {get, put, post, del} = useFetchClient();
 
-  useEffect( () => {
-    const init = async () => {
-      const ssoRoleResponse = await get(`/strapi-plugin-sso/sso-roles`)
-      setSSORoles(ssoRoleResponse.data)
-
-      const roleResponse = await get(`/admin/roles`)
-      setRoles(roleResponse.data.data)
-    }
-    init()
+  useEffect(() => {
+    get(`/strapi-plugin-sso/sso-roles`).then((response) => {
+      setSSORoles(response.data)
+    })
+    get(`/admin/roles`).then((response) => {
+      setRoles(response.data.data)
+    })
+    get('/strapi-plugin-sso/whitelist').then(response => {
+      setUsers(response.data.whitelistUsers)
+      setUseWhitelist(response.data.useWhitelist)
+    })
   }, [setSSORoles, setRoles])
 
-  const onChangeCheck = (value, ssoId, role) => {
+  const onChangeRoleCheck = (value, ssoId, role) => {
     for (const ssoRole of ssoRoles) {
       if (ssoRole['oauth_type'] === ssoId) {
         if (ssoRole['role']) {
@@ -74,7 +57,7 @@ const HomePage = () => {
     }
     setSSORoles(ssoRoles.slice())
   }
-  const onClickSave = async () => {
+  const onSaveRole = async () => {
     try {
       await put('/strapi-plugin-sso/sso-roles', {
         roles: ssoRoles.map(role => ({
@@ -94,6 +77,38 @@ const HomePage = () => {
     }
   }
 
+  const onRegisterWhitelist = async (email) => {
+    setLoading(true)
+    post('/strapi-plugin-sso/whitelist', {
+      email,
+    }).then(response => {
+      get('/strapi-plugin-sso/whitelist').then(response => {
+        setUsers(response.data.whitelistUsers)
+        setUseWhitelist(response.data.useWhitelist)
+      })
+      setLoading(false)
+      setSuccess(true)
+      setTimeout(() => {
+        setSuccess(false)
+      }, 3000)
+    })
+  }
+
+  const onDeleteWhitelist = async (id) => {
+    setLoading(true)
+    del(`/strapi-plugin-sso/whitelist/${id}`).then(response => {
+      get('/strapi-plugin-sso/whitelist').then(response => {
+        setUsers(response.data.whitelistUsers)
+        setUseWhitelist(response.data.useWhitelist)
+      })
+      setLoading(false)
+      setSuccess(true)
+      setTimeout(() => {
+        setSuccess(false)
+      }, 3000)
+    })
+  }
+
   return (
     <Page.Protect permissions={[{action: 'plugin::strapi-plugin-sso.read', subject: null}]}>
       <Layouts.Header
@@ -103,89 +118,50 @@ const HomePage = () => {
           defaultMessage: 'Default role setting at first login'
         })}
       />
+      {
+        showSuccess && (
+          <SuccessAlertMessage onClose={() => setSuccess(false)}/>
+        )
+      }
+      {
+        showError && (
+          <ErrorAlertMessage onClose={() => setError(false)}/>
+        )
+      }
       <Box padding={10}>
-        {
-          showSuccess && (
-            <AlertMessage>
-              <Alert
-                title="Success"
-                variant={'success'}
-                closeLabel={''}
-                onClose={() => setSuccess(false)}
-              >
-                {formatMessage({
-                  id: getTrad('page.save.success'),
-                  defaultMessage: 'Updated settings'
-                })}
-              </Alert>
-            </AlertMessage>
-          )
-        }
-        {
-          showError && (
-            <AlertMessage>
-              <Alert
-                title="Error"
-                variant={'danger'}
-                closeLabel={''}
-                onClose={() => setError(false)}
-              >
-                {formatMessage({
-                  id: getTrad('page.save.error'),
-                  defaultMessage: 'Update failed.'
-                })}
-              </Alert>
-            </AlertMessage>
-          )
-        }
-        <Table colCount={roles.length + 1} rowCount={ssoRoles.length}>
-          <Thead>
-            <Tr>
-              <Th>
-                {/* Not required, but if it doesn't exist, it's an error. */}
-                <Checkbox style={{display: 'none'}}/>
-              </Th>
-              {
-                roles.map(role => (
-                  <Th key={role['id']}>
-                    {role['name']}
-                  </Th>
-                ))
-              }
-            </Tr>
-          </Thead>
-          <Tbody>
-            {
-              ssoRoles.map((ssoRole) => (
-                <Tr key={ssoRole['oauth_type']}>
-                  <Td>{ssoRole['name']}</Td>
-                  {
-                    roles.map((role) => (
-                      <Th key={role['id']}>
-                        <Checkbox
-                          checked={ssoRole['role'] && ssoRole['role'].includes(role['id'])}
-                          onCheckedChange={(value) => {
-                            onChangeCheck(value, ssoRole['oauth_type'], role['id'])
-                          }}
-                        >{''}</Checkbox>
-                      </Th>
-                    ))
-                  }
-                </Tr>
-              ))
-            }
-          </Tbody>
-        </Table>
-        <Description>{formatMessage({
-          id: getTrad('page.notes'),
-          defaultMessage: 'This will not be reflected for already registered users.'
-        })}</Description>
-        <ButtonWrapper>
-          <Button variant='default' onClick={onClickSave}>{formatMessage({
-            id: getTrad('page.save'),
-            defaultMessage: 'Save'
-          })}</Button>
-        </ButtonWrapper>
+        <Tabs.Root defaultValue="role">
+          <Tabs.List aria-label="Manage your attribute" style={{maxWidth: 300}}>
+            <Tabs.Trigger value="role">{formatMessage({
+              id: getTrad('tab.roles'),
+              defaultMessage: 'Roles'
+            })}</Tabs.Trigger>
+            <Tabs.Trigger value="whitelist">{formatMessage({
+              id: getTrad('tab.whitelist'),
+              defaultMessage: 'Whitelist'
+            })}</Tabs.Trigger>
+          </Tabs.List>
+
+          {/* Roles Tab */}
+          <Tabs.Content value="role" style={{background: 'initial'}}>
+            <Role
+              roles={roles}
+              ssoRoles={ssoRoles}
+              onSaveRole={onSaveRole}
+              onChangeRoleCheck={onChangeRoleCheck}
+            />
+          </Tabs.Content>
+
+          {/* Whitelist Tab */}
+          <Tabs.Content value="whitelist">
+            <Whitelist
+              loading={loading}
+              users={users}
+              useWhitelist={useWhitelist}
+              onSave={onRegisterWhitelist}
+              onDelete={onDeleteWhitelist}
+            />
+          </Tabs.Content>
+        </Tabs.Root>
       </Box>
     </Page.Protect>
   );

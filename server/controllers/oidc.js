@@ -30,6 +30,7 @@ const oidcSignInCallback = async (ctx) => {
   const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
+  const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
@@ -66,8 +67,11 @@ const oidcSignInCallback = async (ctx) => {
       userInfoEndpointHeaders
     );
 
-
     const email =  userResponse.data.email
+
+    // whitelist check
+    await whitelistService.checkWhitelistForEmail(email)
+
     const dbUser = await userService.findOneByEmail(email)
     let activateUser;
     let jwtToken;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { randomUUID } from 'crypto';
+import {randomUUID} from 'crypto';
 
 const configValidation = () => {
   const config = strapi.config.get('plugin::strapi-plugin-sso')
@@ -44,6 +44,7 @@ async function googleSignInCallback(ctx) {
   const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
+  const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
@@ -73,6 +74,10 @@ async function googleSignInCallback(ctx) {
     }
 
     const email = config['GOOGLE_ALIAS'] ? oauthService.addGmailAlias(userResponse.data.email, config['GOOGLE_ALIAS']) : userResponse.data.email
+
+    // whitelist check
+    await whitelistService.checkWhitelistForEmail(email)
+
     const dbUser = await userService.findOneByEmail(email)
     let activateUser;
     let jwtToken;
