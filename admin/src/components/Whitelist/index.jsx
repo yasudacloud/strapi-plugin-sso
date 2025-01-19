@@ -56,7 +56,7 @@ export default function Whitelist({users, useWhitelist, loading, onSave, onDelet
   return (
     <>
       <Box padding={4}>
-        <Typography tag="p">
+        <Typography tag="div">
           {
             useWhitelist && (
               <>
