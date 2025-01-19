@@ -1,0 +1,28 @@
+{
+  "info": {
+    "singularName": "whitelists",
+    "pluralName": "whitelists",
+    "collectionName": "whitelists",
+    "displayName": "whitelist",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "content-manager": {
+      "visible": false
+    },
+    "content-type-builder": {
+      "visible": false
+    }
+  },
+  "attributes": {
+    "email": {
+      "type": "string",
+      "configurable": false,
+      "required": true,
+      "unique": true
+    }
+  }
+}

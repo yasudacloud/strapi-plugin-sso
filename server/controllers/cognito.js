@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { randomUUID } from 'crypto';
+import {randomUUID} from 'crypto';
 
 const configValidation = () => {
   const config = strapi.config.get('plugin::strapi-plugin-sso')
@@ -40,6 +40,7 @@ async function cognitoSignInCallback(ctx) {
   const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
+  const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
@@ -68,6 +69,9 @@ async function cognitoSignInCallback(ctx) {
     if (userResponse.data.email_verified !== 'true') {
       throw new Error('Your email address has not been verified.')
     }
+
+    // whitelist check
+    await whitelistService.checkWhitelistForEmail(userResponse.data.email)
 
     const dbUser = await userService.findOneByEmail(userResponse.data.email)
     let activateUser;
