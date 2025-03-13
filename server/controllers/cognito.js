@@ -78,7 +78,7 @@ async function cognitoSignInCallback(ctx) {
       activateUser = dbUser;
       jwtToken = await tokenService.createJwtToken(dbUser)
     } else {
-      const cognitoRoles = await roleService.googleRoles()
+      const cognitoRoles = await roleService.cognitoRoles()
       const roles = cognitoRoles && cognitoRoles['roles'] ? cognitoRoles['roles'].map(role => ({
         id: role
       })) : []
