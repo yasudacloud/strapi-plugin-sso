@@ -88,7 +88,8 @@ module.exports = ({env}) => ({
       OIDC_FAMILY_NAME_FIELD: 'family_name',
       OIDC_GIVEN_NAME_FIELD: 'given_name',
 
-      USE_WHITELIST: true // allow authentication only at the specified email address.
+      USE_WHITELIST: true, // allow authentication only at the specified email address.
+      DISALLOW_REGISTRATION: true // allow authentication only at the already registered users.
     }
   }
 })

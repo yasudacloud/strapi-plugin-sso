@@ -81,6 +81,11 @@ const oidcSignInCallback = async (ctx) => {
       activateUser = dbUser;
       jwtToken = await tokenService.createJwtToken(dbUser)
     } else {
+      // checking to allow registration
+      if (config['DISALLOW_REGISTRATION'] === true) {
+        throw new Error('No new registrations allowed')
+      }
+
       // Register a new account
       const oidcRoles = await roleService.oidcRoles()
       const roles = oidcRoles && oidcRoles['roles'] ? oidcRoles['roles'].map(role => ({

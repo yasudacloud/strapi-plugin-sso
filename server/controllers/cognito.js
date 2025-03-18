@@ -81,6 +81,11 @@ async function cognitoSignInCallback(ctx) {
       activateUser = dbUser;
       jwtToken = await tokenService.createJwtToken(dbUser)
     } else {
+      // checking to allow registration
+      if (config['DISALLOW_REGISTRATION'] === true) {
+        throw new Error('No new registrations allowed')
+      }
+
       const cognitoRoles = await roleService.cognitoRoles()
       const roles = cognitoRoles && cognitoRoles['roles'] ? cognitoRoles['roles'].map(role => ({
         id: role

@@ -87,6 +87,11 @@ async function googleSignInCallback(ctx) {
       activateUser = dbUser;
       jwtToken = await tokenService.createJwtToken(dbUser)
     } else {
+      // checking to allow registration
+      if (config['DISALLOW_REGISTRATION'] === true) {
+        throw new Error('No new registrations allowed')
+      }
+
       // Register a new account
       const googleRoles = await roleService.googleRoles()
       const roles = googleRoles && googleRoles['roles'] ? googleRoles['roles'].map(role => ({

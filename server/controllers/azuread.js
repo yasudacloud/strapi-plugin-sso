@@ -91,6 +91,11 @@ async function azureAdSignInCallback(ctx) {
       activateUser = dbUser;
       jwtToken = await tokenService.createJwtToken(dbUser);
     } else {
+      // checking to allow registration
+      if (config['DISALLOW_REGISTRATION'] === true) {
+        throw new Error('No new registrations allowed')
+      }
+
       const azureAdRoles = await roleService.azureAdRoles();
       const roles =
         azureAdRoles && azureAdRoles["roles"]
