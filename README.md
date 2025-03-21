@@ -62,8 +62,9 @@ module.exports = ({env}) => ({
       COGNITO_OAUTH_CLIENT_ID: '[Client ID created in AWS Cognito]',
       COGNITO_OAUTH_CLIENT_SECRET: '[Client Secret created in AWS Cognito]',
       COGNITO_OAUTH_DOMAIN: '[OAuth Domain created in AWS Cognito]',
-      COGNITO_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/cognito/callback', //  // URI after successful login
+      COGNITO_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/cognito/callback', // URI after successful login
       COGNITO_OAUTH_REGION: 'ap-northeast-1', // AWS Cognito Region 
+      COGNITO_USER_GROUP: '[User Group Name in AWS Cognito]', // allow authentication only for users belonging to the its user group if specified.
 
       // AzureAD
       AZUREAD_OAUTH_REDIRECT_URI: 'http://localhost:1337/strapi-plugin-sso/azuread/callback',
