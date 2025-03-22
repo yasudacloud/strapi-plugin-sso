@@ -36,3 +36,4 @@ Googleアカウント連携と異なり、strapi-plugin-ssoではCognitoのメ�
 | COGNITO_OAUTH_DOMAIN | ○ | - |
 | COGNITO_OAUTH_REDIRECT_URI | - | http://localhost:1337/strapi-plugin-sso/cognito/callback |
 | COGNITO_OAUTH_REGION | - | ap-northeast-1 |
+| COGNITO_USER_GROUP | - | - |
