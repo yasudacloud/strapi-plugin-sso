@@ -70,6 +70,14 @@ async function cognitoSignInCallback(ctx) {
       throw new Error('Your email address has not been verified.')
     }
 
+    const userGroup = config['COGNITO_USER_GROUP'];
+    if (userGroup) {
+      const claims = JSON.parse(Buffer.from(response.data.access_token.split('.')[1], 'base64').toString());
+      if ((claims['cognito:groups'] || []).includes(userGroup) === false) {
+        throw new Error('You do not belong to the specified user group.');
+      }
+    }
+
     const dbUser = await userService.findOneByEmail(userResponse.data.email)
     let activateUser;
     let jwtToken;
