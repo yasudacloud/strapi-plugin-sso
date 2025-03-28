@@ -70,6 +70,14 @@ async function cognitoSignInCallback(ctx) {
       throw new Error('Your email address has not been verified.')
     }
 
+    const userGroup = config['COGNITO_USER_GROUP'];
+    if (userGroup) {
+      const claims = JSON.parse(Buffer.from(response.data.access_token.split('.')[1], 'base64').toString());
+      if ((claims['cognito:groups'] || []).includes(userGroup) === false) {
+        throw new Error('You do not belong to the specified user group.');
+      }
+    }
+
     const dbUser = await userService.findOneByEmail(userResponse.data.email)
     let activateUser;
     let jwtToken;
@@ -78,7 +86,7 @@ async function cognitoSignInCallback(ctx) {
       activateUser = dbUser;
       jwtToken = await tokenService.createJwtToken(dbUser)
     } else {
-      const cognitoRoles = await roleService.googleRoles()
+      const cognitoRoles = await roleService.cognitoRoles()
       const roles = cognitoRoles && cognitoRoles['roles'] ? cognitoRoles['roles'].map(role => ({
         id: role
       })) : []
