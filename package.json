@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-sso",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Plug-in for single sign-on with Strapi!",
   "strapi": {
     "displayName": "Single Sign On",
@@ -31,7 +31,7 @@
     "@strapi/design-system": "^2.0.0-rc.11",
     "@strapi/icons": "^2.0.0-rc.11",
     "@strapi/utils": "^5.8.0",
-    "axios": "^1.7.5",
+    "axios": "^1.8.4",
     "generate-password": "^1.7.1",
     "pkce-challenge": "^3.1.0",
     "react": "^18.0.0",
