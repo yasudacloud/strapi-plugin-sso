@@ -1,5 +1,6 @@
 const axios = require("axios");
 const {v4} = require('uuid');
+const pkceChallenge = require("pkce-challenge");
 
 const configValidation = () => {
   const config = strapi.config.get('plugin.strapi-plugin-sso')
@@ -27,7 +28,15 @@ const OAUTH_SCOPE = 'https://www.googleapis.com/auth/userinfo.email https://www.
 async function googleSignIn(ctx) {
   const config = configValidation()
   const redirectUri = encodeURIComponent(config['GOOGLE_OAUTH_REDIRECT_URI'])
-  const url = `${OAUTH_ENDPOINT}?client_id=${config['GOOGLE_OAUTH_CLIENT_ID']}&redirect_uri=${redirectUri}&scope=${OAUTH_SCOPE}&response_type=${OAUTH_RESPONSE_TYPE}`
+
+  // Generate code verifier and code challenge
+  const { code_verifier: codeVerifier, code_challenge: codeChallenge } =
+    pkceChallenge();
+
+  // Store the code verifier in the session
+  ctx.session.codeVerifier = codeVerifier;
+
+  const url = `${OAUTH_ENDPOINT}?client_id=${config['GOOGLE_OAUTH_CLIENT_ID']}&redirect_uri=${redirectUri}&scope=${OAUTH_SCOPE}&response_type=${OAUTH_RESPONSE_TYPE}&code_challenge=${codeChallenge}&code_challenge_method=S256`
   ctx.set('Location', url)
   return ctx.send({}, 302)
 }
@@ -55,6 +64,9 @@ async function googleSignInCallback(ctx) {
   params.append('client_secret', config['GOOGLE_OAUTH_CLIENT_SECRET']);
   params.append('redirect_uri', config['GOOGLE_OAUTH_REDIRECT_URI']);
   params.append('grant_type', OAUTH_GRANT_TYPE);
+
+  // Include the code verifier from the session
+  params.append("code_verifier", ctx.session.codeVerifier);
 
   try {
     const response = await httpClient.post(OAUTH_TOKEN_ENDPOINT, params, {
