@@ -86,6 +86,10 @@ async function azureAdSignInCallback(ctx) {
       },
     });
 
+    if (!userResponse.data.email) {
+      throw new Error('Email address is not set. Please set email property to the Azure AD user.');
+    }
+
     // whitelist check
     await whitelistService.checkWhitelistForEmail(userResponse.data.email)
 
