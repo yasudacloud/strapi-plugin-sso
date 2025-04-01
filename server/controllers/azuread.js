@@ -30,7 +30,6 @@ const OAUTH_RESPONSE_TYPE = "code";
 
 async function azureAdSignIn(ctx) {
   const config = configValidation();
-  const redirectUri = encodeURIComponent(config["AZUREAD_OAUTH_REDIRECT_URI"]);
   const endpoint = OAUTH_ENDPOINT(config["AZUREAD_TENANT_ID"]);
 
   // Generate code verifier and code challenge
@@ -40,7 +39,14 @@ async function azureAdSignIn(ctx) {
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
 
-  const url = `${endpoint}?client_id=${config["AZUREAD_OAUTH_CLIENT_ID"]}&redirect_uri=${redirectUri}&scope=${config["AZUREAD_SCOPE"]}&response_type=${OAUTH_RESPONSE_TYPE}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+  const params = new URLSearchParams();
+  params.append('client_id', config['AZUREAD_OAUTH_CLIENT_ID']);
+  params.append('redirect_uri', config['AZUREAD_OAUTH_REDIRECT_URI']);
+  params.append('scope', config['AZUREAD_SCOPE']);
+  params.append('response_type', OAUTH_RESPONSE_TYPE);
+  params.append('code_challenge', codeChallenge);
+  params.append('code_challenge_method', 'S256');
+  const url = `${endpoint}?${params.toString()}`;
   ctx.set("Location", url);
   return ctx.send({}, 302);
 }
