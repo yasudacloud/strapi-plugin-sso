@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {randomUUID} from 'crypto';
-import pkceChallenge from "pkce-challenge";
+import * as oauth from 'oauth4webapi';
 
 const configValidation = () => {
   const config = strapi.config.get('plugin::strapi-plugin-sso')
@@ -23,19 +23,20 @@ const OAUTH_USER_INFO_ENDPOINT = (domain, region) => {
   return `https://${domain}.auth.${region}.amazoncognito.com/oauth2/userInfo`
 }
 const OAUTH_GRANT_TYPE = 'authorization_code'
-const OAUTH_SCOPE = encodeURIComponent('openid email profile')
+const OAUTH_SCOPE = 'openid email profile'
 const OAUTH_RESPONSE_TYPE = 'code'
 
 async function cognitoSignIn(ctx) {
   const config = configValidation()
   const endpoint = OAUTH_ENDPOINT(config['COGNITO_OAUTH_DOMAIN'], config['COGNITO_OAUTH_REGION'])
 
-  // Generate code verifier and code challenge
-  const { code_verifier: codeVerifier, code_challenge: codeChallenge } =
-    pkceChallenge();
+  const codeVerifier = oauth.generateRandomCodeVerifier();
+  const codeChallenge = await oauth.calculatePKCECodeChallenge(codeVerifier);
+  const state = oauth.generateRandomState();
 
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
+  ctx.session.oidcState = state;
 
   const params = new URLSearchParams();
   params.append('client_id', config['COGNITO_OAUTH_CLIENT_ID']);
@@ -44,6 +45,7 @@ async function cognitoSignIn(ctx) {
   params.append('response_type', OAUTH_RESPONSE_TYPE);
   params.append('code_challenge', codeChallenge);
   params.append('code_challenge_method', 'S256');
+  params.append('state', state);
   const url = `${endpoint}?${params.toString()}`
   ctx.set('Location', url)
   return ctx.send({}, 302)
@@ -59,6 +61,9 @@ async function cognitoSignInCallback(ctx) {
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
+  }
+  if (!ctx.query.state || ctx.query.state !== ctx.session.oidcState) {
+    return ctx.send(oauthService.renderSignUpError(`Invalid state`))
   }
 
   const params = new URLSearchParams();
