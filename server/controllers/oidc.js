@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { randomUUID } from 'crypto';
-import pkceChallenge from "pkce-challenge";
+import * as oauth from 'oauth4webapi';
 
 const configValidation = () => {
   const config = strapi.config.get('plugin::strapi-plugin-sso')
@@ -16,15 +16,17 @@ const configValidation = () => {
 }
 
 const oidcSignIn = async (ctx) => {
-  const { state } = ctx.query;
+  let { state } = ctx.query;
   const { OIDC_CLIENT_ID, OIDC_REDIRECT_URI, OIDC_SCOPES, OIDC_AUTHORIZATION_ENDPOINT } = configValidation();
 
-  // Generate code verifier and code challenge
-  const { code_verifier: codeVerifier, code_challenge: codeChallenge } =
-    pkceChallenge();
+  const codeVerifier = oauth.generateRandomCodeVerifier();
+  const codeChallenge = await oauth.calculatePKCECodeChallenge(codeVerifier);
+  if (!state) {
+    state = oauth.generateRandomState();
+  }
 
-  // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
+  ctx.session.oidcState = state;
 
   const params = new URLSearchParams();
   params.append('response_type', 'code');
@@ -50,6 +52,9 @@ const oidcSignInCallback = async (ctx) => {
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
+  }
+  if (!ctx.query.state || ctx.query.state !== ctx.session.oidcState) {
+    return ctx.send(oauthService.renderSignUpError(`Invalid state`))
   }
 
   const params = new URLSearchParams();
