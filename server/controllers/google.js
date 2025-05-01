@@ -36,7 +36,7 @@ async function googleSignIn(ctx) {
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
 
-  const state = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString('base64url');
+  const state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
   ctx.session.oidcState = state;
 
   const params = new URLSearchParams();
