@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {Buffer} from 'buffer';
 import {randomUUID} from 'crypto';
 import pkceChallenge from "pkce-challenge";
 
@@ -27,7 +28,6 @@ const OAUTH_SCOPE = 'https://www.googleapis.com/auth/userinfo.email https://www.
  */
 async function googleSignIn(ctx) {
   const config = configValidation()
-  const redirectUri = encodeURIComponent(config['GOOGLE_OAUTH_REDIRECT_URI'])
 
   // Generate code verifier and code challenge
   const { code_verifier: codeVerifier, code_challenge: codeChallenge } =
@@ -36,9 +36,20 @@ async function googleSignIn(ctx) {
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
 
-  const url = `${OAUTH_ENDPOINT}?client_id=${config['GOOGLE_OAUTH_CLIENT_ID']}&redirect_uri=${redirectUri}&scope=${OAUTH_SCOPE}&response_type=${OAUTH_RESPONSE_TYPE}&code_challenge=${codeChallenge}&code_challenge_method=S256`
-  ctx.set('Location', url)
-  return ctx.send({}, 302)
+  const state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
+  ctx.session.oidcState = state;
+
+  const params = new URLSearchParams();
+  params.append('client_id', config['GOOGLE_OAUTH_CLIENT_ID']);
+  params.append('redirect_uri', config['GOOGLE_OAUTH_REDIRECT_URI']);
+  params.append('scope', OAUTH_SCOPE);
+  params.append('response_type', OAUTH_RESPONSE_TYPE);
+  params.append('code_challenge', codeChallenge);
+  params.append('code_challenge_method', 'S256');
+  params.append('state', state);
+  const url = `${OAUTH_ENDPOINT}?${params.toString()}`;
+  ctx.set('Location', url);
+  return ctx.send({}, 302);
 }
 
 /**
@@ -57,6 +68,9 @@ async function googleSignInCallback(ctx) {
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
+  }
+  if (!ctx.query.state || ctx.query.state !== ctx.session.oidcState) {
+    return ctx.send(oauthService.renderSignUpError(`Invalid state`))
   }
 
   const params = new URLSearchParams();
