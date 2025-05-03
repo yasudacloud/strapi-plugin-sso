@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {Buffer} from 'buffer';
 import {randomUUID} from 'crypto';
 import pkceChallenge from "pkce-challenge";
 
@@ -37,6 +38,9 @@ async function cognitoSignIn(ctx) {
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
 
+  const state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
+  ctx.session.oidcState = state;
+
   const params = new URLSearchParams();
   params.append('client_id', config['COGNITO_OAUTH_CLIENT_ID']);
   params.append('redirect_uri', config['COGNITO_OAUTH_REDIRECT_URI']);
@@ -44,6 +48,7 @@ async function cognitoSignIn(ctx) {
   params.append('response_type', OAUTH_RESPONSE_TYPE);
   params.append('code_challenge', codeChallenge);
   params.append('code_challenge_method', 'S256');
+  params.append('state', state);
   const url = `${endpoint}?${params.toString()}`
   ctx.set('Location', url)
   return ctx.send({}, 302)
@@ -59,6 +64,9 @@ async function cognitoSignInCallback(ctx) {
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
+  }
+  if (!ctx.query.state || ctx.query.state !== ctx.session.oidcState) {
+    return ctx.send(oauthService.renderSignUpError(`Invalid state`))
   }
 
   const params = new URLSearchParams();
