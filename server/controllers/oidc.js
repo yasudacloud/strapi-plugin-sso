@@ -1,6 +1,7 @@
 const axios = require("axios");
 const {v4} = require('uuid');
 const pkceChallenge = require("pkce-challenge");
+const {Buffer} = require('buffer');
 
 const configValidation = () => {
   const config = strapi.config.get('plugin.strapi-plugin-sso')
@@ -16,7 +17,7 @@ const configValidation = () => {
 }
 
 const oidcSignIn = async (ctx) => {
-  const { state } = ctx.query;
+  let { state } = ctx.query;
   const { OIDC_CLIENT_ID, OIDC_REDIRECT_URI, OIDC_SCOPES, OIDC_AUTHORIZATION_ENDPOINT } = configValidation();
 
   // Generate code verifier and code challenge
@@ -25,6 +26,11 @@ const oidcSignIn = async (ctx) => {
 
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
+
+  if (!state) {
+    state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
+  }
+  ctx.session.oidcState = state;
 
   const params = new URLSearchParams();
   params.append('response_type', 'code');
@@ -49,6 +55,9 @@ const oidcSignInCallback = async (ctx) => {
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
+  }
+  if (!ctx.query.state || ctx.query.state !== ctx.session.oidcState) {
+    return ctx.send(oauthService.renderSignUpError(`Invalid state`))
   }
 
   const params = new URLSearchParams();
