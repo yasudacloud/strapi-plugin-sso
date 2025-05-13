@@ -1,5 +1,7 @@
 const axios = require("axios");
 const {v4} = require('uuid');
+const pkceChallenge = require("pkce-challenge").default;
+const {Buffer} = require('buffer');
 
 const configValidation = () => {
   const config = strapi.config.get('plugin.strapi-plugin-sso')
@@ -26,10 +28,28 @@ const OAUTH_SCOPE = 'https://www.googleapis.com/auth/userinfo.email https://www.
  */
 async function googleSignIn(ctx) {
   const config = configValidation()
-  const redirectUri = encodeURIComponent(config['GOOGLE_OAUTH_REDIRECT_URI'])
-  const url = `${OAUTH_ENDPOINT}?client_id=${config['GOOGLE_OAUTH_CLIENT_ID']}&redirect_uri=${redirectUri}&scope=${OAUTH_SCOPE}&response_type=${OAUTH_RESPONSE_TYPE}`
-  ctx.set('Location', url)
-  return ctx.send({}, 302)
+
+  // Generate code verifier and code challenge
+  const { code_verifier: codeVerifier, code_challenge: codeChallenge } =
+    pkceChallenge();
+
+  // Store the code verifier in the session
+  ctx.session.codeVerifier = codeVerifier;
+
+  const state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
+  ctx.session.oidcState = state;
+
+  const params = new URLSearchParams();
+  params.append('client_id', config['GOOGLE_OAUTH_CLIENT_ID']);
+  params.append('redirect_uri', config['GOOGLE_OAUTH_REDIRECT_URI']);
+  params.append('scope', OAUTH_SCOPE);
+  params.append('response_type', OAUTH_RESPONSE_TYPE);
+  params.append('code_challenge', codeChallenge);
+  params.append('code_challenge_method', 'S256');
+  params.append('state', state);
+  const url = `${OAUTH_ENDPOINT}?${params.toString()}`;
+  ctx.set('Location', url);
+  return ctx.send({}, 302);
 }
 
 /**
@@ -48,6 +68,9 @@ async function googleSignInCallback(ctx) {
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
   }
+  if (!ctx.query.state || ctx.query.state !== ctx.session.oidcState) {
+    return ctx.send(oauthService.renderSignUpError(`Invalid state`))
+  }
 
   const params = new URLSearchParams();
   params.append('code', ctx.query.code);
@@ -55,6 +78,9 @@ async function googleSignInCallback(ctx) {
   params.append('client_secret', config['GOOGLE_OAUTH_CLIENT_SECRET']);
   params.append('redirect_uri', config['GOOGLE_OAUTH_REDIRECT_URI']);
   params.append('grant_type', OAUTH_GRANT_TYPE);
+
+  // Include the code verifier from the session
+  params.append("code_verifier", ctx.session.codeVerifier);
 
   try {
     const response = await httpClient.post(OAUTH_TOKEN_ENDPOINT, params, {

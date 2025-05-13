@@ -1,5 +1,7 @@
 const axios = require("axios");
-const { v4 } = require('uuid');
+const {v4} = require('uuid');
+const pkceChallenge = require("pkce-challenge").default;
+const {Buffer} = require('buffer');
 
 const configValidation = () => {
   const config = strapi.config.get('plugin.strapi-plugin-sso')
@@ -15,12 +17,32 @@ const configValidation = () => {
 }
 
 const oidcSignIn = async (ctx) => {
-  const { state } = ctx.query;
+  let { state } = ctx.query;
   const { OIDC_CLIENT_ID, OIDC_REDIRECT_URI, OIDC_SCOPES, OIDC_AUTHORIZATION_ENDPOINT } = configValidation();
 
-  const authorizationUrl = `${OIDC_AUTHORIZATION_ENDPOINT}?response_type=code&client_id=${OIDC_CLIENT_ID}&redirect_uri=${OIDC_REDIRECT_URI}&scope=${OIDC_SCOPES}&state=${state}`;
+  // Generate code verifier and code challenge
+  const { code_verifier: codeVerifier, code_challenge: codeChallenge } =
+    pkceChallenge();
 
-  ctx.redirect(authorizationUrl);
+  // Store the code verifier in the session
+  ctx.session.codeVerifier = codeVerifier;
+
+  if (!state) {
+    state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
+  }
+  ctx.session.oidcState = state;
+
+  const params = new URLSearchParams();
+  params.append('response_type', 'code');
+  params.append('client_id', OIDC_CLIENT_ID);
+  params.append('redirect_uri', OIDC_REDIRECT_URI);
+  params.append('scope', OIDC_SCOPES);
+  params.append('code_challenge', codeChallenge);
+  params.append('code_challenge_method', 'S256');
+  params.append('state', state);
+  const authorizationUrl = `${OIDC_AUTHORIZATION_ENDPOINT}?${params.toString()}`;
+  ctx.set('Location', authorizationUrl);
+  return ctx.send({}, 302);
 };
 
 const oidcSignInCallback = async (ctx) => {
@@ -34,6 +56,9 @@ const oidcSignInCallback = async (ctx) => {
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`))
   }
+  if (!ctx.query.state || ctx.query.state !== ctx.session.oidcState) {
+    return ctx.send(oauthService.renderSignUpError(`Invalid state`))
+  }
 
   const params = new URLSearchParams();
   params.append('code', ctx.query.code);
@@ -41,6 +66,9 @@ const oidcSignInCallback = async (ctx) => {
   params.append('client_secret', config['OIDC_CLIENT_SECRET']);
   params.append('redirect_uri', config['OIDC_REDIRECT_URI']);
   params.append('grant_type', config['OIDC_GRANT_TYPE']);
+
+  // Include the code verifier from the session
+  params.append("code_verifier", ctx.session.codeVerifier);
 
   try {
     const response = await httpClient.post(config['OIDC_TOKEN_ENDPOINT'], params, {
