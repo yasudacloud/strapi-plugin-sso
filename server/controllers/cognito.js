@@ -1,7 +1,7 @@
 'use strict';
 const axios = require("axios");
 const {v4} = require('uuid');
-const pkceChallenge = require("pkce-challenge");
+const pkceChallenge = require("pkce-challenge").default;
 const {Buffer} = require('buffer');
 
 const configValidation = () => {
