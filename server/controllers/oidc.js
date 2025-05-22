@@ -3,6 +3,36 @@ import {Buffer} from 'buffer';
 import { randomUUID } from 'crypto';
 import pkceChallenge from "pkce-challenge";
 
+const registerAccount = async (email, locale) => {
+  const roleService = strapi.plugin('strapi-plugin-sso').service('role')
+  const oidcRoles = await roleService.oidcRoles()
+  const roles = oidcRoles?.['roles']?.map(role => ({ id: role })) ?? []
+  return oauthService.createUser(
+    email,
+    userResponse.data[config['OIDC_FAMILY_NAME_FIELD']],
+    userResponse.data[config['OIDC_GIVEN_NAME_FIELD']],
+    locale,
+    roles,
+  )
+};
+
+const getUserInfo = async (accessToken) => {
+  const httpClient = axios.create();
+  const params = new URLSearchParams();
+  const headers = {};
+
+  if (config["OIDC_USER_INFO_ENDPOINT_WITH_AUTH_HEADER"]) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  } else {
+    params.append("access_token", accessToken);
+  }
+
+  return httpClient.get(
+    config["OIDC_USER_INFO_ENDPOINT"],
+    { headers, params },
+  );
+};
+
 const configValidation = () => {
   const config = strapi.config.get('plugin::strapi-plugin-sso')
   if (config['OIDC_CLIENT_ID'] && config['OIDC_CLIENT_SECRET']
@@ -15,6 +45,21 @@ const configValidation = () => {
   }
   throw new Error('OIDC_AUTHORIZATION_ENDPOINT,OIDC_TOKEN_ENDPOINT, OIDC_USER_INFO_ENDPOINT,OIDC_CLIENT_ID, OIDC_CLIENT_SECRET, OIDC_REDIRECT_URI, and OIDC_SCOPES are required')
 }
+
+const oidcGetJwt = async (ctx) => {
+  let accessToken = ctx.request.header.authorization;
+  const userInfo = getUserInfo(accessToken);
+  const email = userInfo.data.email
+  await whitelistService.checkWhitelistForEmail(email)
+  const user = await userService.findOneByEmail(email)
+
+  if (!user) {
+    const defaultLocale = oauthService.localeFindByHeader(headers);
+    activateUser = await registerAccount(email, defaultLocale);
+  }
+
+  return tokenService.createJwtToken(user)
+};
 
 const oidcSignIn = async (ctx) => {
   let { state } = ctx.query;
@@ -51,7 +96,6 @@ const oidcSignInCallback = async (ctx) => {
   const userService = strapi.service('admin::user')
   const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
-  const roleService = strapi.plugin('strapi-plugin-sso').service('role')
   const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
 
   if (!ctx.query.code) {
@@ -78,62 +122,32 @@ const oidcSignInCallback = async (ctx) => {
       }
     })
 
-    let userInfoEndpointHeaders = {};
-    let userInfoEndpointParameters = `?access_token=${response.data.access_token}`;
-
-    if (config["OIDC_USER_INFO_ENDPOINT_WITH_AUTH_HEADER"]) {
-      userInfoEndpointHeaders = {
-        headers: { Authorization: `Bearer ${response.data.access_token}` },
-      };
-      userInfoEndpointParameters = "";
-    }
-
-    const userInfoEndpoint = `${config["OIDC_USER_INFO_ENDPOINT"]}${userInfoEndpointParameters}`;
-
-    const userResponse = await httpClient.get(
-      userInfoEndpoint,
-      userInfoEndpointHeaders
-    );
-
+    const userResponse = getUserInfo(response.data.access_token);
     const email =  userResponse.data.email
 
     // whitelist check
     await whitelistService.checkWhitelistForEmail(email)
 
-    const dbUser = await userService.findOneByEmail(email)
-    let activateUser;
-    let jwtToken;
+    let user = await userService.findOneByEmail(email)
+    let isNewUser = false
 
-    if (dbUser) {
-      // Already registered
-      activateUser = dbUser;
-      jwtToken = await tokenService.createJwtToken(dbUser)
-    } else {
-      // Register a new account
-      const oidcRoles = await roleService.oidcRoles()
-      const roles = oidcRoles && oidcRoles['roles'] ? oidcRoles['roles'].map(role => ({
-        id: role
-      })) : []
+    if (!user) {
+      const defaultLocale = oauthService.localeFindByHeader(headers)
+      user = await registerAccount(email, defaultLocale)
+      isNewUser = true
+    }
 
-      const defaultLocale = oauthService.localeFindByHeader(ctx.request.headers)
-      activateUser = await oauthService.createUser(
-        email,
-        userResponse.data[config['OIDC_FAMILY_NAME_FIELD']],
-        userResponse.data[config['OIDC_GIVEN_NAME_FIELD']],
-        defaultLocale,
-        roles,
-      )
-      jwtToken = await tokenService.createJwtToken(activateUser)
+    const jwtToken = await tokenService.createJwtToken(user)
 
-      // Trigger webhook
-      await oauthService.triggerWebHook(activateUser)
+    if (isNewUser) {
+      await oauthService.triggerWebHook(user)
     }
     // Login Event Call
-    oauthService.triggerSignInSuccess(activateUser)
+    oauthService.triggerSignInSuccess(user)
 
     // Client-side authentication persistence and redirection
     const nonce = randomUUID()
-    const html = oauthService.renderSignUpSuccess(jwtToken, activateUser, nonce)
+    const html = oauthService.renderSignUpSuccess(jwtToken, user, nonce)
     ctx.set('Content-Security-Policy', `script-src 'nonce-${nonce}'`)
     ctx.send(html);
   } catch (e) {
@@ -143,6 +157,7 @@ const oidcSignInCallback = async (ctx) => {
 };
 
 export default {
+  oidcGetJwt,
   oidcSignIn,
   oidcSignInCallback,
 };

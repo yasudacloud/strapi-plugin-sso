@@ -75,6 +75,14 @@ export default [
   },
   {
     method: 'GET',
+    path: '/oidc/jwt',
+    handler: 'oidc.oidcGetJwt',
+    config: {
+      auth: false,
+    },
+  },
+  {
+    method: 'GET',
     path: '/whitelist',
     handler: 'whitelist.info',
   },
