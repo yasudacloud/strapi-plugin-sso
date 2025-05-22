@@ -76,7 +76,7 @@ export default [
   {
     method: 'GET',
     path: '/oidc/jwt',
-    handler: 'oidc.oidcSignInCallback',
+    handler: 'oidc.oidcGetJwt',
     config: {
       auth: false,
     },
