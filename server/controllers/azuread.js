@@ -1,4 +1,3 @@
-import axios from "axios";
 import {Buffer} from 'buffer';
 import { randomUUID } from "crypto";
 import pkceChallenge from "pkce-challenge";
@@ -62,6 +61,8 @@ async function azureAdSignInCallback(ctx) {
   const oauthService = strapi.plugin("strapi-plugin-sso").service("oauth");
   const roleService = strapi.plugin("strapi-plugin-sso").service("role");
   const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
+  const httpService = strapi.plugin('strapi-plugin-sso').service('httpClient');
+  const httpClient = httpService.getHttpClient();
 
   if (!ctx.query.code) {
     return ctx.send(oauthService.renderSignUpError(`code Not Found`));
@@ -82,12 +83,12 @@ async function azureAdSignInCallback(ctx) {
 
   try {
     const tokenEndpoint = OAUTH_TOKEN_ENDPOINT(config["AZUREAD_TENANT_ID"]);
-    const response = await axios.post(tokenEndpoint, params, {
+    const response = await httpClient.post(tokenEndpoint, params, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
-    const userResponse = await axios.get(OAUTH_USER_INFO_ENDPOINT, {
+    const userResponse = await httpClient.get(OAUTH_USER_INFO_ENDPOINT, {
       headers: {
         Authorization: `Bearer ${response.data.access_token}`,
       },

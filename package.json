@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-sso",
-  "version": "1.0.6",
+  "version": "1.0.7-alpha.0",
   "description": "Plug-in for single sign-on with Strapi!",
   "strapi": {
     "displayName": "Single Sign On",
@@ -33,7 +33,9 @@
     "@strapi/utils": "^5.8.0",
     "axios": "^1.8.4",
     "generate-password": "^1.7.1",
+    "https-proxy-agent": "^7.0.6",
     "pkce-challenge": "^3.1.0",
+    "proxy-agent": "^6.5.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-intl": "^6.0.0",
