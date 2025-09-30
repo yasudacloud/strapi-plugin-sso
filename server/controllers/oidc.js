@@ -49,7 +49,6 @@ const oidcSignInCallback = async (ctx) => {
   const config = configValidation()
   const httpClient = axios.create()
   const userService = strapi.service('admin::user')
-  const tokenService = strapi.service('admin::token')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
   const whitelistService = strapi.plugin('strapi-plugin-sso').service('whitelist')
@@ -107,7 +106,7 @@ const oidcSignInCallback = async (ctx) => {
     if (dbUser) {
       // Already registered
       activateUser = dbUser;
-      jwtToken = await tokenService.createJwtToken(dbUser)
+      jwtToken = await oauthService.generateToken(dbUser, ctx)
     } else {
       // Register a new account
       const oidcRoles = await roleService.oidcRoles()
@@ -123,7 +122,7 @@ const oidcSignInCallback = async (ctx) => {
         defaultLocale,
         roles,
       )
-      jwtToken = await tokenService.createJwtToken(activateUser)
+      jwtToken = await oauthService.generateToken(activateUser, ctx)
 
       // Trigger webhook
       await oauthService.triggerWebHook(activateUser)
