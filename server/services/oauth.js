@@ -121,4 +121,35 @@ export default ({strapi}) => ({
 </body>
 </html>`;
   },
+  async generateToken(user, ctx) {
+    const sessionManager = strapi.sessionManager;
+    if (!sessionManager) {
+      throw new Error('sessionManager is not supported. Please upgrade to Strapi v5.24.1 or later.')
+    }
+    const userId = String(user.id);
+    // TODO: A deviceId is generated each time you log in.
+    const deviceId = crypto.randomUUID();
+
+    const config = strapi.config.get("plugin::strapi-plugin-sso");
+    const REMEMBER_ME = config["REMEMBER_ME"]
+    const rememberMe = !!REMEMBER_ME
+
+    const {token: refreshToken} = await sessionManager(
+      'admin'
+    ).generateRefreshToken(userId, deviceId, {
+      type: rememberMe ? 'refresh' : 'session',
+    });
+
+    // TODO: reference the Configuration   values
+    // https://github.com/strapi/strapi/pull/24346/files#diff-c27336b21ee5785523f7fc802899a5d405da67d12c837c498c4766cb04a50b9aR64
+    const cookieOptions = {}
+    ctx.cookies.set('strapi_admin_refresh', refreshToken, cookieOptions);
+
+    const accessResult = await sessionManager('admin').generateAccessToken(refreshToken);
+    if ('error' in accessResult) {
+      throw new Error(accessResult.error);
+    }
+    const {token: accessToken} = accessResult;
+    return accessToken;
+  }
 });
