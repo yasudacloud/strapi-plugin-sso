@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {Buffer} from 'buffer';
-import { randomUUID } from 'crypto';
+import { randomUUID, getRandomValues } from 'node:crypto';
 import pkceChallenge from "pkce-challenge";
 
 const configValidation = () => {
@@ -28,7 +28,7 @@ const oidcSignIn = async (ctx) => {
   ctx.session.codeVerifier = codeVerifier;
 
   if (!state) {
-    state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
+    state = getRandomValues(Buffer.alloc(32)).toString('base64url');
   }
   ctx.session.oidcState = state;
 
