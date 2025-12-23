@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {Buffer} from 'buffer';
-import {randomUUID} from 'crypto';
+import {randomUUID, getRandomValues} from 'node:crypto';
 import pkceChallenge from "pkce-challenge";
 
 const configValidation = () => {
@@ -36,7 +36,7 @@ async function googleSignIn(ctx) {
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
 
-  const state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
+  const state = getRandomValues(Buffer.alloc(32)).toString('base64url');
   ctx.session.oidcState = state;
 
   const params = new URLSearchParams();

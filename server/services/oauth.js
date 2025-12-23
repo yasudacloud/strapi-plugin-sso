@@ -1,5 +1,6 @@
 import strapiUtils from "@strapi/utils";
 import generator from "generate-password";
+import {randomUUID} from 'node:crypto';
 
 export default ({strapi}) => ({
   async createUser(email, lastname, firstname, locale, roles = []) {
@@ -128,7 +129,7 @@ export default ({strapi}) => ({
     }
     const userId = String(user.id);
     // TODO: A deviceId is generated each time you log in.
-    const deviceId = crypto.randomUUID();
+    const deviceId = randomUUID();
 
     const config = strapi.config.get("plugin::strapi-plugin-sso");
     const REMEMBER_ME = config["REMEMBER_ME"]
