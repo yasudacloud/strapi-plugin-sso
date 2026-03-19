@@ -2,24 +2,11 @@ import { getTranslation } from './utils/getTranslation';
 import pluginPkg from '../../package.json';
 import pluginId from './pluginId';
 import Initializer from './components/Initializer';
-import PluginIcon from './components/PluginIcon';
 
 const name = pluginPkg.strapi.displayName;
 
 export default {
   register(app) {
-    app.addMenuLink({
-      to: `/plugins/${pluginId}`,
-      icon: PluginIcon,
-      intlLabel: {
-        id: `${pluginId}.plugin.name`,
-        defaultMessage: name,
-      },
-      Component: async () => {
-        return await import('./pages/App');
-      },
-      permissions: [{ action: 'plugin::strapi-plugin-sso.read', subject: null }]
-    });
     app.registerPlugin({
       id: pluginId,
       initializer: Initializer,
@@ -27,7 +14,29 @@ export default {
     });
   },
 
-  bootstrap(app) {},
+  bootstrap({ addSettingsLink }) {
+    addSettingsLink(
+      {
+        id: pluginId,
+        intlLabel: {
+          id: `${pluginId}.plugin.name`,
+          defaultMessage: 'Single Sign On',
+        },
+        links: [
+          {
+            intlLabel: {
+              id: `${pluginId}.settings.configuration`,
+              defaultMessage: 'Configuration',
+            },
+            id: `${pluginId}-configuration`,
+            to: `/settings/${pluginId}`,
+            Component: () => import('./pages/HomePage'),
+            permissions: [{ action: 'plugin::strapi-plugin-sso.read', subject: null }],
+          },
+        ],
+      }
+    );
+  },
   async registerTrads({ locales }) {
     const importedTrads = await Promise.all(
       locales.map(locale => {
