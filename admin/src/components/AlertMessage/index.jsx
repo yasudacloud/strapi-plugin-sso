@@ -32,7 +32,7 @@ export function SuccessAlertMessage({onClose}) {
   )
 }
 
-export function ErrorAlertMessage() {
+export function ErrorAlertMessage({onClose}) {
   const {formatMessage} = useIntl();
   return (
     <AlertMessage>

@@ -17,7 +17,7 @@ async function update(ctx) {
     const {roles} = ctx.request.body
     const roleService = strapi.plugin('strapi-plugin-sso').service('role')
     await roleService.update(roles)
-    ctx.send({}, 204)
+    ctx.send({ ok: true })
   } catch (e) {
     console.log(e)
     ctx.send({}, 400)
