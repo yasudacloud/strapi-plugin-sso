@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-sso",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Plug-in for single sign-on with Strapi!",
   "strapi": {
     "displayName": "Single Sign On",
@@ -44,7 +44,7 @@
     }
   ],
   "engines": {
-    "node": ">=16.0.0 <21.0.0",
+    "node": ">=18.0.0 <=22.x.x",
     "npm": ">=7.0.0"
   },
   "license": "MIT",

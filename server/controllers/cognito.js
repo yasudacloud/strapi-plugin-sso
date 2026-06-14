@@ -3,6 +3,7 @@ const axios = require("axios");
 const {v4} = require('uuid');
 const pkceChallenge = require("pkce-challenge").default;
 const {Buffer} = require('buffer');
+const {getRandomValues} = require('node:crypto');
 
 const configValidation = () => {
   const config = strapi.config.get('plugin.strapi-plugin-sso')
@@ -39,7 +40,7 @@ async function cognitoSignIn(ctx) {
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
 
-  const state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
+  const state = getRandomValues(Buffer.alloc(32)).toString('base64url');
   ctx.session.oidcState = state;
 
   const params = new URLSearchParams();

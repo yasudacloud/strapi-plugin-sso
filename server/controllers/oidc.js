@@ -2,6 +2,7 @@ const axios = require("axios");
 const {v4} = require('uuid');
 const pkceChallenge = require("pkce-challenge").default;
 const {Buffer} = require('buffer');
+const {getRandomValues} = require('node:crypto');
 
 const configValidation = () => {
   const config = strapi.config.get('plugin.strapi-plugin-sso')
@@ -28,7 +29,7 @@ const oidcSignIn = async (ctx) => {
   ctx.session.codeVerifier = codeVerifier;
 
   if (!state) {
-    state = crypto.getRandomValues(Buffer.alloc(32)).toString('base64url');
+    state = getRandomValues(Buffer.alloc(32)).toString('base64url');
   }
   ctx.session.oidcState = state;
 
