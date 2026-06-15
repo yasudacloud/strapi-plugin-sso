@@ -1,5 +1,5 @@
-import axios from "axios";
 import {Buffer} from 'buffer';
+import { getJson, postForm } from '../utils/http.js';
 import { randomUUID, getRandomValues } from "node:crypto";
 import pkceChallenge from "pkce-challenge";
 
@@ -81,25 +81,19 @@ async function azureAdSignInCallback(ctx) {
 
   try {
     const tokenEndpoint = OAUTH_TOKEN_ENDPOINT(config["AZUREAD_TENANT_ID"]);
-    const response = await axios.post(tokenEndpoint, params, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
-    const userResponse = await axios.get(OAUTH_USER_INFO_ENDPOINT, {
-      headers: {
-        Authorization: `Bearer ${response.data.access_token}`,
-      },
+    const response = await postForm(tokenEndpoint, params);
+    const userResponse = await getJson(OAUTH_USER_INFO_ENDPOINT, {
+      Authorization: `Bearer ${response.access_token}`,
     });
 
-    if (!userResponse.data.email) {
+    if (!userResponse.email) {
       throw new Error('Email address is not set. Please set email property to the Azure AD user.');
     }
 
     // whitelist check
-    await whitelistService.checkWhitelistForEmail(userResponse.data.email)
+    await whitelistService.checkWhitelistForEmail(userResponse.email)
 
-    const dbUser = await userService.findOneByEmail(userResponse.data.email);
+    const dbUser = await userService.findOneByEmail(userResponse.email);
     let activateUser;
     let jwtToken;
 
@@ -119,9 +113,9 @@ async function azureAdSignInCallback(ctx) {
         ctx.request.headers
       );
       activateUser = await oauthService.createUser(
-        userResponse.data.email,
-        userResponse.data.family_name,
-        userResponse.data.given_name,
+        userResponse.email,
+        userResponse.family_name,
+        userResponse.given_name,
         defaultLocale,
         roles
       );

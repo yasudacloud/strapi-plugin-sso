@@ -1,5 +1,5 @@
-import axios from 'axios';
 import {Buffer} from 'buffer';
+import { getJson, postForm } from '../utils/http.js';
 import { randomUUID, getRandomValues } from 'node:crypto';
 import pkceChallenge from "pkce-challenge";
 
@@ -47,7 +47,6 @@ const oidcSignIn = async (ctx) => {
 
 const oidcSignInCallback = async (ctx) => {
   const config = configValidation()
-  const httpClient = axios.create()
   const userService = strapi.service('admin::user')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
   const roleService = strapi.plugin('strapi-plugin-sso').service('role')
@@ -71,30 +70,23 @@ const oidcSignInCallback = async (ctx) => {
   params.append("code_verifier", ctx.session.codeVerifier);
 
   try {
-    const response = await httpClient.post(config['OIDC_TOKEN_ENDPOINT'], params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    })
+    const response = await postForm(config['OIDC_TOKEN_ENDPOINT'], params)
 
     let userInfoEndpointHeaders = {};
-    let userInfoEndpointParameters = `?access_token=${response.data.access_token}`;
+    let userInfoEndpointParameters = `?access_token=${response.access_token}`;
 
     if (config["OIDC_USER_INFO_ENDPOINT_WITH_AUTH_HEADER"]) {
       userInfoEndpointHeaders = {
-        headers: { Authorization: `Bearer ${response.data.access_token}` },
+        Authorization: `Bearer ${response.access_token}`,
       };
       userInfoEndpointParameters = "";
     }
 
     const userInfoEndpoint = `${config["OIDC_USER_INFO_ENDPOINT"]}${userInfoEndpointParameters}`;
 
-    const userResponse = await httpClient.get(
-      userInfoEndpoint,
-      userInfoEndpointHeaders
-    );
+    const userResponse = await getJson(userInfoEndpoint, userInfoEndpointHeaders);
 
-    const email =  userResponse.data.email
+    const email =  userResponse.email
 
     // whitelist check
     await whitelistService.checkWhitelistForEmail(email)
@@ -117,8 +109,8 @@ const oidcSignInCallback = async (ctx) => {
       const defaultLocale = oauthService.localeFindByHeader(ctx.request.headers)
       activateUser = await oauthService.createUser(
         email,
-        userResponse.data[config['OIDC_FAMILY_NAME_FIELD']],
-        userResponse.data[config['OIDC_GIVEN_NAME_FIELD']],
+        userResponse[config['OIDC_FAMILY_NAME_FIELD']],
+        userResponse[config['OIDC_GIVEN_NAME_FIELD']],
         defaultLocale,
         roles,
       )

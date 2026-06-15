@@ -1,5 +1,5 @@
-import axios from 'axios';
 import {Buffer} from 'buffer';
+import { getJson, postForm } from '../utils/http.js';
 import {randomUUID, getRandomValues} from 'node:crypto';
 import pkceChallenge from "pkce-challenge";
 
@@ -59,7 +59,6 @@ async function googleSignIn(ctx) {
  */
 async function googleSignInCallback(ctx) {
   const config = configValidation()
-  const httpClient = axios.create()
 
   const userService = strapi.service('admin::user')
   const oauthService = strapi.plugin('strapi-plugin-sso').service('oauth')
@@ -84,22 +83,18 @@ async function googleSignInCallback(ctx) {
   params.append("code_verifier", ctx.session.codeVerifier);
 
   try {
-    const response = await httpClient.post(OAUTH_TOKEN_ENDPOINT, params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    })
-    const userInfoEndpoint = `${OAUTH_USER_INFO_ENDPOINT}?access_token=${response.data.access_token}`
-    const userResponse = await httpClient.get(userInfoEndpoint)
+    const response = await postForm(OAUTH_TOKEN_ENDPOINT, params)
+    const userInfoEndpoint = `${OAUTH_USER_INFO_ENDPOINT}?access_token=${response.access_token}`
+    const userResponse = await getJson(userInfoEndpoint)
 
     // for GSuite
     if (config['GOOGLE_GSUITE_HD']) {
-      if (userResponse.data.hd !== config['GOOGLE_GSUITE_HD']) {
+      if (userResponse.hd !== config['GOOGLE_GSUITE_HD']) {
         throw new Error('Unauthorized email address')
       }
     }
 
-    const email = config['GOOGLE_ALIAS'] ? oauthService.addGmailAlias(userResponse.data.email, config['GOOGLE_ALIAS']) : userResponse.data.email
+    const email = config['GOOGLE_ALIAS'] ? oauthService.addGmailAlias(userResponse.email, config['GOOGLE_ALIAS']) : userResponse.email
 
     // whitelist check
     await whitelistService.checkWhitelistForEmail(email)
@@ -122,8 +117,8 @@ async function googleSignInCallback(ctx) {
       const defaultLocale = oauthService.localeFindByHeader(ctx.request.headers)
       activateUser = await oauthService.createUser(
         email,
-        userResponse.data.family_name,
-        userResponse.data.given_name,
+        userResponse.family_name,
+        userResponse.given_name,
         defaultLocale,
         roles
       )
