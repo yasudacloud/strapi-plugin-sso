@@ -1,5 +1,5 @@
-import axios from 'axios';
 import {Buffer} from 'buffer';
+import { getJson, postForm } from '../utils/http.js';
 import {randomUUID, getRandomValues} from 'node:crypto';
 import pkceChallenge from "pkce-challenge";
 
@@ -33,7 +33,7 @@ async function cognitoSignIn(ctx) {
 
   // Generate code verifier and code challenge
   const { code_verifier: codeVerifier, code_challenge: codeChallenge } =
-    pkceChallenge();
+    await pkceChallenge();
 
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
@@ -81,32 +81,26 @@ async function cognitoSignInCallback(ctx) {
   try {
     const tokenEndpoint = OAUTH_TOKEN_ENDPOINT(config['COGNITO_OAUTH_DOMAIN'], config['COGNITO_OAUTH_REGION'])
     const userInfoEndpoint = OAUTH_USER_INFO_ENDPOINT(config['COGNITO_OAUTH_DOMAIN'], config['COGNITO_OAUTH_REGION'])
-    const response = await axios.post(tokenEndpoint, params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+    const response = await postForm(tokenEndpoint, params)
+    const userResponse = await getJson(userInfoEndpoint, {
+      Authorization: `Bearer ${response.access_token}`,
     })
-    const userResponse = await axios.get(userInfoEndpoint, {
-      headers: {
-        Authorization: `Bearer ${response.data.access_token}`
-      }
-    })
-    if (userResponse.data.email_verified !== 'true') {
+    if (userResponse.email_verified !== 'true') {
       throw new Error('Your email address has not been verified.')
     }
 
     const userGroup = config['COGNITO_USER_GROUP'];
     if (userGroup) {
-      const claims = JSON.parse(Buffer.from(response.data.access_token.split('.')[1], 'base64').toString());
+      const claims = JSON.parse(Buffer.from(response.access_token.split('.')[1], 'base64').toString());
       if ((claims['cognito:groups'] || []).includes(userGroup) === false) {
         throw new Error('You do not belong to the specified user group.');
       }
     }
 
     // whitelist check
-    await whitelistService.checkWhitelistForEmail(userResponse.data.email)
+    await whitelistService.checkWhitelistForEmail(userResponse.email)
 
-    const dbUser = await userService.findOneByEmail(userResponse.data.email)
+    const dbUser = await userService.findOneByEmail(userResponse.email)
     let activateUser;
     let jwtToken;
 
@@ -121,9 +115,9 @@ async function cognitoSignInCallback(ctx) {
 
       const defaultLocale = oauthService.localeFindByHeader(ctx.request.headers)
       activateUser = await oauthService.createUser(
-        userResponse.data.email,
+        userResponse.email,
         '',
-        userResponse.data.username,
+        userResponse.username,
         defaultLocale,
         roles
       )
