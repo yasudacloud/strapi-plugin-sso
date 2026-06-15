@@ -34,7 +34,7 @@ async function azureAdSignIn(ctx) {
 
   // Generate code verifier and code challenge
   const { code_verifier: codeVerifier, code_challenge: codeChallenge } =
-    pkceChallenge();
+    await pkceChallenge();
 
   // Store the code verifier in the session
   ctx.session.codeVerifier = codeVerifier;
