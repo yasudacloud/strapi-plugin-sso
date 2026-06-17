@@ -7,7 +7,7 @@ export default ({strapi}) => ({
     const query = strapi.query('plugin::strapi-plugin-sso.whitelists')
     await query.create({
       data: {
-        email
+        email: email.toLowerCase()
       }
     })
   },
@@ -29,7 +29,7 @@ export default ({strapi}) => ({
     const query = strapi.query('plugin::strapi-plugin-sso.whitelists')
     const result = await query.findOne({
       where: {
-        email
+        email: email.toLowerCase()
       }
     })
     if (result === null) {
