@@ -122,6 +122,9 @@ const oidcSignInCallback = async (ctx) => {
     // Login Event Call
     oauthService.triggerSignInSuccess(activateUser)
 
+    // Keep the provider session so that logging out of Strapi can end it
+    await strapi.plugin('strapi-plugin-sso').service('oidcLogout').saveSession(activateUser.id, response.refresh_token)
+
     // Client-side authentication persistence and redirection
     const nonce = randomUUID()
     const html = oauthService.renderSignUpSuccess(jwtToken, activateUser, nonce)

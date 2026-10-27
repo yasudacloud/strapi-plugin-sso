@@ -90,6 +90,7 @@ module.exports = ({env}) => ({
       // customizable username arguments
       OIDC_FAMILY_NAME_FIELD: 'family_name',
       OIDC_GIVEN_NAME_FIELD: 'given_name',
+      OIDC_LOGOUT_ENDPOINT: '[API Endpoint]', // optional, see docs/en/oidc/setup.md
 
       USE_WHITELIST: true // allow authentication only at the specified email address.
     }
